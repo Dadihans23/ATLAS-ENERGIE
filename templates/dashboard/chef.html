@@ -1,0 +1,342 @@
+{% extends "base.html" %}
+{% load currency_tags %}
+
+{% block title %}Tableau de bord{% endblock %}
+{% block breadcrumb %}
+  <span style="color:rgba(100,116,139,0.4)">/</span>
+  <span style="color:#276228; font-weight:600">Tableau de bord</span>
+{% endblock %}
+
+{% block content %}
+
+<!-- ── En-tête ─────────────────────────────────────────────── -->
+<div class="flex items-center justify-between mb-8 animate-in">
+  <div>
+    <h1 style="font-size:1.6rem; font-weight:800; color:#1a3d1b; line-height:1.2">
+      Bonjour, {{ request.user.first_name }} 👋
+    </h1>
+    <p style="color:#64748b; font-size:0.85rem; margin-top:4px">
+      Vue globale de l'agence — <span style="color:#2d7a2f">{{ nb_projets }} projet{{ nb_projets|pluralize }} actif{{ nb_projets|pluralize }}</span>
+    </p>
+  </div>
+  <a href="{% url 'projets:creer' %}" class="btn-glass-primary">
+    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+    </svg>
+    Nouveau projet
+  </a>
+</div>
+
+<!-- ── KPI Cards ──────────────────────────────────────────── -->
+<div class="grid grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
+
+  <!-- Projets actifs -->
+  <div class="kpi-card animate-in delay-1">
+    <div class="flex items-start justify-between mb-4">
+      <div class="icon-badge icon-badge-blue">
+        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V7z"/>
+        </svg>
+      </div>
+      <span class="status-info">Actifs</span>
+    </div>
+    <p style="font-size:2.4rem; font-weight:900; color:#276228; line-height:1; letter-spacing:-0.02em">
+      {{ nb_projets }}
+    </p>
+    <p style="color:#64748b; font-size:0.75rem; font-weight:600; margin-top:6px; text-transform:uppercase; letter-spacing:0.05em">
+      Projets actifs
+    </p>
+  </div>
+
+  <!-- Budget total -->
+  <div class="kpi-card animate-in delay-2">
+    <div class="flex items-start justify-between mb-4">
+      <div class="icon-badge icon-badge-amber">
+        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+      </div>
+    </div>
+    <p style="font-size:1.1rem; font-weight:900; color:#92400e; line-height:1.2; letter-spacing:-0.01em">
+      {{ total_budget|xof }}
+    </p>
+    <p style="color:#64748b; font-size:0.75rem; font-weight:600; margin-top:6px; text-transform:uppercase; letter-spacing:0.05em">
+      Budget total alloué
+    </p>
+  </div>
+
+  <!-- Total consommé -->
+  <div class="kpi-card animate-in delay-3">
+    <div class="flex items-start justify-between mb-4">
+      <div class="icon-badge icon-badge-green">
+        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>
+        </svg>
+      </div>
+      <span style="color:#276228; font-size:0.78rem; font-weight:700">{{ taux_global|pct }}</span>
+    </div>
+    <p style="font-size:1rem; font-weight:900; color:#1a3d1b; line-height:1.2">
+      {{ total_depense|xof }}
+    </p>
+    <div class="progress-modern mt-3">
+      <div class="progress-modern-fill {% if taux_global > 90 %}danger{% elif taux_global > 75 %}warning{% endif %}"
+           style="width: {{ taux_global }}%"></div>
+    </div>
+    <p style="color:#64748b; font-size:0.75rem; font-weight:600; margin-top:8px; text-transform:uppercase; letter-spacing:0.05em">
+      Total consommé
+    </p>
+  </div>
+
+  <!-- Budget restant -->
+  <div class="kpi-card animate-in delay-4">
+    <div class="flex items-start justify-between mb-4">
+      <div class="icon-badge {% if total_restant < 0 %}icon-badge-red{% else %}icon-badge-green{% endif %}">
+        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+      </div>
+      {% if projets_alerte %}
+        <span class="status-danger">⚠ {{ projets_alerte|length }} alerte{{ projets_alerte|length|pluralize }}</span>
+      {% else %}
+        <span class="status-ok">✓ Sain</span>
+      {% endif %}
+    </div>
+    <p style="font-size:1rem; font-weight:900; line-height:1.2;
+              color: {% if total_restant < 0 %}#991b1b{% else %}#065f46{% endif %}">
+      {{ total_restant|xof }}
+    </p>
+    <p style="color:#64748b; font-size:0.75rem; font-weight:600; margin-top:6px; text-transform:uppercase; letter-spacing:0.05em">
+      Budget restant global
+    </p>
+  </div>
+
+</div>
+
+<!-- ── Projets en cours ────────────────────────────────────── -->
+<div class="mb-8 animate-in delay-2">
+  <div class="flex items-center justify-between mb-4">
+    <div>
+      <h2 style="font-size:1.05rem; font-weight:800; color:#1a3d1b">Projets en cours</h2>
+      <p style="color:#94a3b8; font-size:0.75rem; margin-top:2px">Consommation budgétaire par projet</p>
+    </div>
+    <a href="{% url 'projets:liste' %}" class="btn-glass-secondary" style="padding:7px 14px; font-size:0.78rem">
+      Voir tous →
+    </a>
+  </div>
+
+  {% if projets %}
+  <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
+    {% for p in projets|slice:":6" %}
+    <div class="glass-card p-5">
+      <!-- Header -->
+      <div class="flex items-start justify-between mb-4">
+        <div class="min-w-0 mr-3">
+          <h3 style="font-weight:700; color:#1a3d1b; font-size:0.9rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis">
+            {{ p.nom }}
+          </h3>
+          <p style="color:#94a3b8; font-size:0.72rem; margin-top:2px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap">
+            {{ p.designation|truncatechars:55 }}
+          </p>
+        </div>
+        {% if p.est_en_depassement %}
+          <span class="status-danger shrink-0">⚠ Dépassement</span>
+        {% elif p.taux_consommation >= 80 %}
+          <span class="status-warn shrink-0">Alerte</span>
+        {% else %}
+          <span class="status-ok shrink-0">● Actif</span>
+        {% endif %}
+      </div>
+
+      <!-- Montants -->
+      <div class="flex justify-between items-baseline mb-2">
+        <span style="color:#276228; font-weight:700; font-size:0.88rem">{{ p.total_depense|xof }}</span>
+        <span style="color:#94a3b8; font-size:0.75rem">/ {{ p.total_budget|xof }}</span>
+      </div>
+
+      <!-- Barre de progression -->
+      <div class="progress-modern mb-2">
+        <div class="progress-modern-fill {% if p.taux_consommation > 90 %}danger{% elif p.taux_consommation > 75 %}warning{% endif %}"
+             style="width: min({{ p.taux_consommation }}%, 100%)"></div>
+      </div>
+      <div class="flex justify-between mb-4">
+        <span style="color:#94a3b8; font-size:0.7rem">Consommé</span>
+        <span style="font-weight:700; font-size:0.75rem; color:{% if p.taux_consommation > 90 %}#dc2626{% elif p.taux_consommation > 75 %}#d97706{% else %}#276228{% endif %}">
+          {{ p.taux_consommation|pct }}
+        </span>
+      </div>
+
+      <!-- Actions -->
+      <div class="flex gap-2">
+        <a href="{% url 'projets:detail' p.pk %}" class="btn-glass-secondary flex-1 justify-center"
+           style="padding:7px 10px; font-size:0.75rem; border-radius:10px">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+          </svg>
+          Détail
+        </a>
+        <a href="{% url 'depenses:exploitation_creer' %}" class="btn-glass-primary flex-1 justify-center"
+           style="padding:7px 10px; font-size:0.75rem; border-radius:10px">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+          </svg>
+          + Dépense
+        </a>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="glass-card p-12 text-center">
+    <div class="icon-badge icon-badge-blue mx-auto mb-4" style="width:56px; height:56px; border-radius:18px">
+      <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V7z"/>
+      </svg>
+    </div>
+    <p style="color:#94a3b8; font-size:0.9rem; margin-bottom:16px">Aucun projet actif pour le moment.</p>
+    <a href="{% url 'projets:creer' %}" class="btn-glass-primary">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+      </svg>
+      Créer le premier projet
+    </a>
+  </div>
+  {% endif %}
+</div>
+
+<!-- ── Dépenses récentes ──────────────────────────────────── -->
+<div class="grid grid-cols-1 xl:grid-cols-2 gap-5 animate-in delay-3">
+
+  <!-- Exploitation -->
+  <div class="glass-card overflow-hidden">
+    <div class="flex items-center justify-between px-5 py-4" style="border-bottom:1px solid rgba(200,230,201,0.3)">
+      <div class="flex items-center gap-3">
+        <div class="icon-badge icon-badge-blue" style="width:32px; height:32px; border-radius:10px">
+          <svg class="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M9 14l6-6m-5.5.5h.01m4.99 5h.01M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2z"/>
+          </svg>
+        </div>
+        <span style="font-weight:700; font-size:0.82rem; color:#1a3d1b">Dernières dépenses exploitation</span>
+      </div>
+      <a href="{% url 'depenses:exploitation_liste' %}"
+         style="color:#2d7a2f; font-size:0.75rem; font-weight:600; text-decoration:none"
+         onmouseover="this.style.color='#1f5c21'" onmouseout="this.style.color='#2d7a2f'">
+        Voir tout →
+      </a>
+    </div>
+    <div style="overflow-x:auto">
+      <table class="modern-table">
+        <thead>
+          <tr>
+            <th>N° Saisie</th>
+            <th>Projet</th>
+            <th style="text-align:right">Montant</th>
+            <th>Agent</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for d in recentes_exploitation %}
+          <tr>
+            <td>
+              <span style="font-family:monospace; font-size:0.72rem; font-weight:700; color:#276228;
+                           background:rgba(200,230,201,0.3); padding:2px 8px; border-radius:6px">
+                {{ d.numero_saisie }}
+              </span>
+            </td>
+            <td style="font-size:0.78rem; color:#334155; font-weight:500; max-width:120px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap">
+              {{ d.centre_budgetaire.nom }}
+            </td>
+            <td style="text-align:right; font-weight:800; font-size:0.82rem; color:#276228">
+              {{ d.montant_xof|xof }}
+            </td>
+            <td>
+              <div class="flex items-center gap-2">
+                <div class="avatar-initials" style="width:26px; height:26px; border-radius:8px; font-size:0.6rem">
+                  {{ d.created_by.first_name|first|upper }}{{ d.created_by.last_name|first|upper }}
+                </div>
+                <span style="font-size:0.72rem; color:#64748b">{{ d.created_by.get_short_name }}</span>
+              </div>
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="4" style="text-align:center; padding:28px; color:#94a3b8; font-size:0.82rem">
+              Aucune dépense enregistrée
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Frais généraux -->
+  <div class="glass-card overflow-hidden">
+    <div class="flex items-center justify-between px-5 py-4" style="border-bottom:1px solid rgba(200,230,201,0.3)">
+      <div class="flex items-center gap-3">
+        <div class="icon-badge icon-badge-green" style="width:32px; height:32px; border-radius:10px">
+          <svg class="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
+          </svg>
+        </div>
+        <span style="font-weight:700; font-size:0.82rem; color:#1a3d1b">Derniers frais généraux</span>
+      </div>
+      <a href="{% url 'depenses:fg_liste' %}"
+         style="color:#2d7a2f; font-size:0.75rem; font-weight:600; text-decoration:none"
+         onmouseover="this.style.color='#7c3aed'" onmouseout="this.style.color='#8b5cf6'">
+        Voir tout →
+      </a>
+    </div>
+    <div style="overflow-x:auto">
+      <table class="modern-table">
+        <thead>
+          <tr>
+            <th>N° Saisie</th>
+            <th>Ligne</th>
+            <th style="text-align:right">Montant</th>
+            <th>Agent</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for d in recentes_fg %}
+          <tr>
+            <td>
+              <span style="font-family:monospace; font-size:0.72rem; font-weight:700; color:#276228;
+                           background:rgba(200,230,201,0.4); padding:2px 8px; border-radius:6px">
+                {{ d.numero_saisie }}
+              </span>
+            </td>
+            <td style="font-size:0.78rem; color:#334155">{{ d.get_ligne_budgetaire_display }}</td>
+            <td style="text-align:right; font-weight:800; font-size:0.82rem; color:#276228">
+              {{ d.montant_xof|xof }}
+            </td>
+            <td>
+              <div class="flex items-center gap-2">
+                <div class="avatar-initials" style="width:26px; height:26px; border-radius:8px; font-size:0.6rem; background:linear-gradient(135deg,#a78bfa,#8b5cf6)">
+                  {{ d.created_by.first_name|first|upper }}{{ d.created_by.last_name|first|upper }}
+                </div>
+                <span style="font-size:0.72rem; color:#64748b">{{ d.created_by.get_short_name }}</span>
+              </div>
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="4" style="text-align:center; padding:28px; color:#94a3b8; font-size:0.82rem">
+              Aucun frais enregistré
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+{% endblock %}

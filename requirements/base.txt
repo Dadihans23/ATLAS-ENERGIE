@@ -1,0 +1,39 @@
+# ─────────────────────────────────────────────
+#  GestionProjetAgence – Atlas Énergies
+#  Requirements PRODUCTION – Python 3.12 / Django 5.1+
+# ─────────────────────────────────────────────
+
+# Core Django
+Django==5.1.4
+django-environ==0.11.2
+
+# Authentification
+django-allauth==0.63.6
+
+# Modèles & utilitaires
+django-model-utils==4.5.1
+
+# Audit & historique
+django-simple-history==3.7.0
+
+# Nettoyage automatique fichiers orphelins
+django-cleanup==8.1.0
+
+# Traitement d'images / fichiers
+Pillow==10.4.0
+
+# Tables, filtres, pagination
+django-tables2==2.7.0
+django-filter==24.3
+
+# Widgets de formulaires
+django-widget-tweaks==1.5.0
+
+# Fichiers statiques en production
+whitenoise==6.7.0
+
+# Export Excel
+openpyxl==3.1.5
+
+# Validation MIME fichiers uploadés
+filetype==1.2.0

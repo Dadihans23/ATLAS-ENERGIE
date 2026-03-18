@@ -1,0 +1,230 @@
+{% extends "base.html" %}
+{% load currency_tags %}
+
+{% block title %}Projets{% endblock %}
+{% block breadcrumb %}
+  <span style="color:rgba(100,116,139,0.4)">/</span>
+  <a href="{% url 'dashboard:accueil' %}" style="color:#64748b; font-weight:500; text-decoration:none">Tableau de bord</a>
+  <span style="color:rgba(100,116,139,0.4)">/</span>
+  <span style="color:#276228; font-weight:600">Projets</span>
+{% endblock %}
+
+{% block content %}
+
+<!-- En-tête -->
+<div class="flex items-center justify-between mb-8 animate-in">
+  <div>
+    <h1 style="font-size:1.6rem; font-weight:800; color:#1a3d1b">Projets</h1>
+    <p style="color:#64748b; font-size:0.85rem; margin-top:4px">{{ projets|length }} projet{{ projets|length|pluralize }} au total</p>
+  </div>
+  <a href="{% url 'projets:creer' %}" class="btn-glass-primary">
+    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+    </svg>
+    Nouveau projet
+  </a>
+</div>
+
+<!-- Filtres -->
+<form method="get" class="glass-card px-5 py-4 mb-6 animate-in delay-1">
+  <div class="flex flex-wrap gap-3 items-end">
+    <div>
+      <label style="font-size:0.72rem; font-weight:600; color:#64748b; text-transform:uppercase; letter-spacing:0.05em; display:block; margin-bottom:6px">Recherche</label>
+      <input type="text" name="q" value="{{ request.GET.q }}" placeholder="Nom du projet…"
+             class="form-input-modern"
+             style="padding:8px 14px; width:220px; font-size:0.85rem; outline:none"/>
+    </div>
+    <div>
+      <label style="font-size:0.72rem; font-weight:600; color:#64748b; text-transform:uppercase; letter-spacing:0.05em; display:block; margin-bottom:6px">Statut</label>
+      <select name="actif" class="form-input-modern" style="padding:8px 14px; font-size:0.85rem; cursor:pointer; outline:none; appearance:auto">
+        <option value="">Tous les projets</option>
+        <option value="1" {% if request.GET.actif == '1' %}selected{% endif %}>Actifs uniquement</option>
+        <option value="0" {% if request.GET.actif == '0' %}selected{% endif %}>Archivés uniquement</option>
+      </select>
+    </div>
+    <button type="submit" class="btn-glass-primary" style="padding:9px 18px">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+      </svg>
+      Filtrer
+    </button>
+    {% if request.GET.q or request.GET.actif %}
+    <a href="{% url 'projets:liste' %}" class="btn-glass-secondary" style="padding:9px 16px">
+      ✕ Réinitialiser
+    </a>
+    {% endif %}
+  </div>
+</form>
+
+<!-- Table -->
+<div class="glass-card overflow-hidden animate-in delay-2">
+  <div style="overflow-x:auto">
+    <table class="modern-table">
+      <thead>
+        <tr>
+          <th>Projet</th>
+          <th style="text-align:right">Budget total</th>
+          <th style="text-align:right">Consommé</th>
+          <th style="text-align:right">Restant</th>
+          <th style="min-width:120px">Avancement</th>
+          <th>Statut</th>
+          <th>Créé le</th>
+          <th style="text-align:right">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for p in projets %}
+        <tr>
+          <td>
+            <div>
+              <a href="{% url 'projets:detail' p.pk %}"
+                 style="font-weight:700; color:#276228; font-size:0.88rem; text-decoration:none"
+                 onmouseover="this.style.color='#2d7a2f'" onmouseout="this.style.color='#276228'">
+                {{ p.nom }}
+              </a>
+              {% if p.designation %}
+              <p style="font-size:0.72rem; color:#94a3b8; margin-top:2px; max-width:200px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap">
+                {{ p.designation|truncatechars:50 }}
+              </p>
+              {% endif %}
+            </div>
+          </td>
+          <td style="text-align:right; font-family:monospace; font-size:0.82rem; font-weight:600; color:#334155">
+            {{ p.total_budget|xof }}
+          </td>
+          <td style="text-align:right; font-family:monospace; font-size:0.82rem; font-weight:700; color:#276228">
+            {{ p.total_depense|xof }}
+          </td>
+          <td style="text-align:right; font-family:monospace; font-size:0.82rem; font-weight:700;
+                     color:{% if p.budget_restant_global < 0 %}#dc2626{% else %}#059669{% endif %}">
+            {{ p.budget_restant_global|xof }}
+          </td>
+          <td>
+            <div style="display:flex; align-items:center; gap:8px">
+              <div class="progress-modern" style="flex:1">
+                <div class="progress-modern-fill {% if p.taux_consommation > 90 %}danger{% elif p.taux_consommation > 75 %}warning{% endif %}"
+                     style="width:min({{ p.taux_consommation }}%, 100%)"></div>
+              </div>
+              <span style="font-size:0.72rem; font-weight:700; color:#64748b; white-space:nowrap">{{ p.taux_consommation|pct }}</span>
+            </div>
+          </td>
+          <td>
+            {% if p.is_active %}
+              <span class="status-ok">● Actif</span>
+            {% else %}
+              <span style="background:rgba(241,245,249,0.6); color:#64748b; border:1px solid rgba(148,163,184,0.3); border-radius:99px; padding:2px 10px; font-size:0.7rem; font-weight:600">Archivé</span>
+            {% endif %}
+            {% if p.est_en_depassement %}
+              <span class="status-danger" style="margin-left:4px">⚠</span>
+            {% endif %}
+          </td>
+          <td style="font-size:0.75rem; color:#94a3b8">{{ p.date_creation|date:"d/m/Y" }}</td>
+          <td>
+            <div style="display:flex; justify-content:flex-end; gap:6px">
+              <a href="{% url 'projets:detail' p.pk %}"
+                 title="Voir le détail"
+                 style="width:30px; height:30px; border-radius:8px; background:rgba(232,245,233,0.6); border:1px solid rgba(76,175,80,0.2); display:flex; align-items:center; justify-content:center; color:#276228; transition:all 0.2s; text-decoration:none"
+                 onmouseover="this.style.background='rgba(76,175,80,0.15)'; this.style.borderColor='rgba(45,122,47,0.4)'"
+                 onmouseout="this.style.background='rgba(232,245,233,0.6)'; this.style.borderColor='rgba(76,175,80,0.2)'">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                </svg>
+              </a>
+              <a href="{% url 'projets:modifier' p.pk %}"
+                 title="Modifier"
+                 style="width:30px; height:30px; border-radius:8px; background:rgba(232,245,233,0.6); border:1px solid rgba(76,175,80,0.2); display:flex; align-items:center; justify-content:center; color:#276228; transition:all 0.2s; text-decoration:none"
+                 onmouseover="this.style.background='rgba(76,175,80,0.15)'"
+                 onmouseout="this.style.background='rgba(232,245,233,0.6)'">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                </svg>
+              </a>
+              <button onclick="confirmerSuppression('{{ p.nom|escapejs }}', '{% url 'projets:supprimer' p.pk %}')"
+                 title="Supprimer"
+                 style="width:30px; height:30px; border-radius:8px; background:rgba(254,226,226,0.5); border:1px solid rgba(248,113,113,0.2); display:flex; align-items:center; justify-content:center; color:#dc2626; transition:all 0.2s; cursor:pointer"
+                 onmouseover="this.style.background='rgba(254,202,202,0.7)'"
+                 onmouseout="this.style.background='rgba(254,226,226,0.5)'">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                </svg>
+              </button>
+            </div>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="8" style="text-align:center; padding:48px 20px">
+            <div style="color:#94a3b8">
+              <svg style="width:40px; height:40px; margin:0 auto 12px; display:block; opacity:0.4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V7z"/>
+              </svg>
+              <p style="font-size:0.9rem">Aucun projet trouvé.</p>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Pagination -->
+  {% if is_paginated %}
+  <div style="display:flex; justify-content:center; padding:16px; border-top:1px solid rgba(200,230,201,0.3); gap:8px">
+    {% if page_obj.has_previous %}
+    <a href="?page={{ page_obj.previous_page_number }}&q={{ request.GET.q }}" class="btn-glass-secondary" style="padding:7px 14px; font-size:0.8rem">« Précédent</a>
+    {% endif %}
+    <span class="btn-glass-secondary" style="padding:7px 16px; font-size:0.8rem; cursor:default">
+      {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}
+    </span>
+    {% if page_obj.has_next %}
+    <a href="?page={{ page_obj.next_page_number }}&q={{ request.GET.q }}" class="btn-glass-secondary" style="padding:7px 14px; font-size:0.8rem">Suivant »</a>
+    {% endif %}
+  </div>
+  {% endif %}
+</div>
+
+<!-- Modal de confirmation de suppression -->
+<div id="modal-delete" style="display:none; position:fixed; inset:0; z-index:100; align-items:center; justify-content:center; background:rgba(12,74,110,0.35); backdrop-filter:blur(6px)">
+  <div style="background:rgba(255,255,255,0.92); backdrop-filter:blur(20px); border:1px solid rgba(255,255,255,0.6); border-radius:24px; padding:32px; max-width:420px; width:90%; box-shadow:0 20px 60px rgba(45,122,47,0.2); text-align:center; animation:fadeInUp 0.3s ease">
+    <div style="width:56px; height:56px; border-radius:18px; background:linear-gradient(135deg,#f87171,#ef4444); box-shadow:0 8px 20px rgba(239,68,68,0.35); display:flex; align-items:center; justify-content:center; margin:0 auto 16px">
+      <svg style="width:26px; height:26px; color:white; display:block" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+      </svg>
+    </div>
+    <h3 style="font-size:1.1rem; font-weight:800; color:#1a3d1b; margin-bottom:8px">Supprimer ce projet ?</h3>
+    <p id="modal-delete-name" style="font-size:0.88rem; color:#64748b; margin-bottom:24px; padding:8px 16px; background:rgba(241,245,249,0.8); border-radius:10px; font-weight:500"></p>
+    <p style="font-size:0.8rem; color:#94a3b8; margin-bottom:24px">Cette action est irréversible. Toutes les dépenses associées seront perdues.</p>
+    <div style="display:flex; gap:12px; justify-content:center">
+      <button onclick="fermerModal()" class="btn-glass-secondary">Annuler</button>
+      <form id="form-delete" method="post" style="display:inline">
+        {% csrf_token %}
+        <button type="submit" style="background:linear-gradient(135deg,#f87171,#ef4444); color:#fff; border:none; border-radius:12px; padding:10px 24px; font-weight:700; font-size:0.85rem; cursor:pointer; box-shadow:0 4px 16px rgba(239,68,68,0.4); transition:all 0.2s"
+                onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 8px 24px rgba(239,68,68,0.5)'"
+                onmouseout="this.style.transform=''; this.style.boxShadow='0 4px 16px rgba(239,68,68,0.4)'">
+          Supprimer définitivement
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+function confirmerSuppression(nom, url) {
+  document.getElementById('modal-delete-name').textContent = nom;
+  document.getElementById('form-delete').action = url;
+  const modal = document.getElementById('modal-delete');
+  modal.style.display = 'flex';
+}
+function fermerModal() {
+  document.getElementById('modal-delete').style.display = 'none';
+}
+document.getElementById('modal-delete').addEventListener('click', function(e) {
+  if (e.target === this) fermerModal();
+});
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') fermerModal();
+});
+</script>
+
+{% endblock %}

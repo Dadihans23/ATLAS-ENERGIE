@@ -1,0 +1,203 @@
+{% extends "base.html" %}
+{% load currency_tags %}
+
+{% block title %}Frais généraux{% endblock %}
+{% block breadcrumb %}
+  <span style="color:rgba(100,116,139,0.4)">/</span>
+  <span style="color:#276228; font-weight:600">Frais généraux</span>
+{% endblock %}
+
+{% block content %}
+
+<div class="flex items-center justify-between mb-8 flex-wrap gap-3 animate-in">
+  <div>
+    <h1 style="font-size:1.6rem; font-weight:800; color:#1a3d1b">Frais généraux</h1>
+    <p style="color:#64748b; font-size:0.85rem; margin-top:4px">Charges ne relevant pas d'un projet spécifique</p>
+  </div>
+  <div style="display:flex; gap:10px; flex-wrap:wrap">
+    <div style="position:relative" id="export-dropdown-wrapper">
+      <button onclick="toggleDropdown()" class="btn-glass-secondary" style="padding:9px 16px">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+        </svg>
+        Exporter
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+        </svg>
+      </button>
+      <div id="export-dropdown" style="display:none; position:absolute; right:0; top:calc(100% + 8px); background:rgba(255,255,255,0.95); backdrop-filter:blur(16px); border:1px solid rgba(200,230,201,0.5); border-radius:14px; box-shadow:0 8px 32px rgba(45,122,47,0.15); min-width:170px; z-index:50; overflow:hidden">
+        <a href="{% url 'depenses:fg_export_csv' %}"
+           style="display:flex; align-items:center; gap:10px; padding:11px 16px; font-size:0.82rem; font-weight:500; color:#334155; text-decoration:none; transition:background 0.15s"
+           onmouseover="this.style.background='rgba(232,245,233,0.5)'" onmouseout="this.style.background=''">📄 CSV (.csv)</a>
+        <a href="{% url 'depenses:fg_export_excel' %}"
+           style="display:flex; align-items:center; gap:10px; padding:11px 16px; font-size:0.82rem; font-weight:500; color:#334155; text-decoration:none; border-top:1px solid rgba(200,230,201,0.3); transition:background 0.15s"
+           onmouseover="this.style.background='rgba(232,245,233,0.5)'" onmouseout="this.style.background=''">📊 Excel (.xlsx)</a>
+      </div>
+    </div>
+    <a href="{% url 'depenses:fg_creer' %}" class="btn-glass-primary"
+       style="background:linear-gradient(135deg,#a78bfa,#8b5cf6); box-shadow:0 4px 16px rgba(45,122,47,0.3)">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+      </svg>
+      Nouveau frais général
+    </a>
+  </div>
+</div>
+
+<!-- Filtres -->
+<form method="get" class="glass-card px-5 py-4 mb-6 animate-in delay-1">
+  <div class="flex flex-wrap gap-3 items-end">
+    <div>
+      <label style="font-size:0.72rem; font-weight:600; color:#64748b; text-transform:uppercase; letter-spacing:0.05em; display:block; margin-bottom:6px">Recherche</label>
+      <input type="text" name="q" value="{{ request.GET.q }}" placeholder="N° saisie, libellé…"
+             class="form-input-modern" style="padding:8px 14px; width:200px; font-size:0.85rem; outline:none"/>
+    </div>
+    <div>
+      <label style="font-size:0.72rem; font-weight:600; color:#64748b; text-transform:uppercase; letter-spacing:0.05em; display:block; margin-bottom:6px">Ligne budgétaire</label>
+      <select name="ligne" class="form-input-modern" style="padding:8px 14px; font-size:0.85rem; cursor:pointer; outline:none; appearance:auto">
+        <option value="">Toutes les lignes</option>
+        {% for val, label in lignes_choices %}
+        <option value="{{ val }}" {% if request.GET.ligne == val %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <button type="submit" class="btn-glass-primary" style="padding:9px 18px">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+      </svg>
+      Filtrer
+    </button>
+    {% if request.GET.q or request.GET.ligne %}
+    <a href="{% url 'depenses:fg_liste' %}" class="btn-glass-secondary" style="padding:9px 16px">✕ Réinitialiser</a>
+    {% endif %}
+  </div>
+</form>
+
+<!-- Table -->
+<div class="glass-card overflow-hidden animate-in delay-2">
+  <div style="overflow-x:auto">
+    <table class="modern-table">
+      <thead>
+        <tr>
+          <th>N° Saisie</th><th>Date</th><th>Ligne budgétaire</th><th>Nature</th>
+          <th>Libellé</th><th style="text-align:right">Montant XOF</th>
+          <th>Devise</th><th>Fournisseur</th><th>Par</th>
+          {% if request.user.is_chef %}<th style="text-align:right">Actions</th>{% endif %}
+        </tr>
+      </thead>
+      <tbody>
+        {% for d in depenses %}
+        <tr>
+          <td>
+            <span style="font-family:monospace; font-size:0.75rem; font-weight:700; color:#276228; background:rgba(200,230,201,0.4); padding:3px 9px; border-radius:7px">
+              {{ d.numero_saisie }}
+            </span>
+          </td>
+          <td style="font-size:0.78rem; color:#64748b; white-space:nowrap">{{ d.date_saisie|date:"d/m/Y" }}</td>
+          <td style="font-size:0.78rem; color:#334155">{{ d.get_ligne_budgetaire_display }}</td>
+          <td style="font-size:0.75rem; color:#64748b">{{ d.get_nature_depense_display }}</td>
+          <td style="font-size:0.78rem; color:#334155; max-width:160px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap">{{ d.libelle }}</td>
+          <td style="text-align:right; font-family:monospace; font-weight:800; font-size:0.85rem; color:#276228; white-space:nowrap">{{ d.montant_xof|xof }}</td>
+          <td>
+            {% if d.devise != 'XOF' %}
+            <span style="background:rgba(200,230,201,0.4); color:#276228; border:1px solid rgba(139,92,246,0.25); border-radius:6px; padding:2px 8px; font-size:0.7rem; font-weight:600">{{ d.devise }}</span>
+            {% else %}
+            <span style="color:#94a3b8; font-size:0.75rem">XOF</span>
+            {% endif %}
+          </td>
+          <td style="font-size:0.75rem; color:#64748b; max-width:90px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap">{{ d.fournisseur|default:"—" }}</td>
+          <td>
+            <div style="display:flex; align-items:center; gap:6px">
+              <div class="avatar-initials" style="width:24px; height:24px; border-radius:7px; font-size:0.6rem; background:linear-gradient(135deg,#a78bfa,#8b5cf6)">
+                {{ d.created_by.first_name|first|upper }}{{ d.created_by.last_name|first|upper }}
+              </div>
+              <span style="font-size:0.72rem; color:#94a3b8">{{ d.created_by.get_short_name }}</span>
+            </div>
+          </td>
+          {% if request.user.is_chef %}
+          <td>
+            <div style="display:flex; justify-content:flex-end; gap:6px">
+              <a href="{% url 'depenses:fg_modifier' d.pk %}" title="Modifier"
+                 style="width:28px; height:28px; border-radius:8px; background:rgba(200,230,201,0.4); border:1px solid rgba(139,92,246,0.2); display:flex; align-items:center; justify-content:center; color:#276228; text-decoration:none; transition:all 0.2s"
+                 onmouseover="this.style.background='rgba(196,181,253,0.3)'" onmouseout="this.style.background='rgba(237,233,254,0.5)'">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                </svg>
+              </a>
+              <button onclick="confirmerSuppression('{{ d.numero_saisie|escapejs }}', '{% url 'depenses:fg_supprimer' d.pk %}')"
+                 style="width:28px; height:28px; border-radius:8px; background:rgba(254,226,226,0.5); border:1px solid rgba(248,113,113,0.2); display:flex; align-items:center; justify-content:center; color:#dc2626; cursor:pointer; transition:all 0.2s"
+                 onmouseover="this.style.background='rgba(254,202,202,0.7)'" onmouseout="this.style.background='rgba(254,226,226,0.5)'">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                </svg>
+              </button>
+            </div>
+          </td>
+          {% endif %}
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="{% if request.user.is_chef %}10{% else %}9{% endif %}" style="text-align:center; padding:48px; color:#94a3b8; font-size:0.88rem">
+            Aucun frais général trouvé.
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  {% if is_paginated %}
+  <div style="display:flex; justify-content:center; padding:16px; border-top:1px solid rgba(200,230,201,0.3); gap:8px">
+    {% if page_obj.has_previous %}
+    <a href="?page={{ page_obj.previous_page_number }}&q={{ request.GET.q }}" class="btn-glass-secondary" style="padding:7px 14px; font-size:0.8rem">« Précédent</a>
+    {% endif %}
+    <span class="btn-glass-secondary" style="padding:7px 16px; font-size:0.8rem; cursor:default">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>
+    {% if page_obj.has_next %}
+    <a href="?page={{ page_obj.next_page_number }}&q={{ request.GET.q }}" class="btn-glass-secondary" style="padding:7px 14px; font-size:0.8rem">Suivant »</a>
+    {% endif %}
+  </div>
+  {% endif %}
+</div>
+
+<!-- Modal suppression -->
+<div id="modal-delete" style="display:none; position:fixed; inset:0; z-index:100; align-items:center; justify-content:center; background:rgba(12,74,110,0.35); backdrop-filter:blur(6px)">
+  <div style="background:rgba(255,255,255,0.93); backdrop-filter:blur(20px); border:1px solid rgba(255,255,255,0.6); border-radius:24px; padding:32px; max-width:400px; width:90%; box-shadow:0 20px 60px rgba(45,122,47,0.2); text-align:center; animation:fadeInUp 0.3s ease">
+    <div style="width:52px; height:52px; border-radius:16px; background:linear-gradient(135deg,#f87171,#ef4444); box-shadow:0 6px 18px rgba(239,68,68,0.35); display:flex; align-items:center; justify-content:center; margin:0 auto 16px">
+      <svg style="width:24px; height:24px; color:white; display:block" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+      </svg>
+    </div>
+    <h3 style="font-size:1.05rem; font-weight:800; color:#1a3d1b; margin-bottom:8px">Supprimer ce frais ?</h3>
+    <p id="modal-delete-name" style="font-size:0.85rem; color:#64748b; margin-bottom:20px; font-family:monospace; font-weight:700; background:rgba(241,245,249,0.8); padding:6px 12px; border-radius:8px; display:inline-block"></p>
+    <div style="display:flex; gap:12px; justify-content:center">
+      <button onclick="fermerModal()" class="btn-glass-secondary">Annuler</button>
+      <form id="form-delete" method="post" style="display:inline">
+        {% csrf_token %}
+        <button type="submit" style="background:linear-gradient(135deg,#f87171,#ef4444); color:#fff; border:none; border-radius:12px; padding:10px 22px; font-weight:700; font-size:0.85rem; cursor:pointer; box-shadow:0 4px 14px rgba(239,68,68,0.4); transition:all 0.2s"
+                onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform=''">Supprimer</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+function toggleDropdown() {
+  const d = document.getElementById('export-dropdown');
+  d.style.display = d.style.display === 'none' ? 'block' : 'none';
+}
+document.addEventListener('click', function(e) {
+  if (!document.getElementById('export-dropdown-wrapper').contains(e.target)) {
+    document.getElementById('export-dropdown').style.display = 'none';
+  }
+});
+function confirmerSuppression(ref, url) {
+  document.getElementById('modal-delete-name').textContent = ref;
+  document.getElementById('form-delete').action = url;
+  document.getElementById('modal-delete').style.display = 'flex';
+}
+function fermerModal() { document.getElementById('modal-delete').style.display = 'none'; }
+document.getElementById('modal-delete').addEventListener('click', function(e) { if (e.target === this) fermerModal(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') fermerModal(); });
+</script>
+
+{% endblock %}

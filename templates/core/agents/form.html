@@ -1,0 +1,188 @@
+{% extends "base.html" %}
+
+{% block title %}{{ titre }}{% endblock %}
+{% block breadcrumb %}
+  <span style="color:rgba(100,116,139,0.4)">/</span>
+  <a href="{% url 'core:agent_liste' %}" style="color:#64748b; text-decoration:none; font-size:0.85rem;">Utilisateurs</a>
+  <span style="color:rgba(100,116,139,0.4)">/</span>
+  <span style="color:#276228; font-weight:600">{{ titre }}</span>
+{% endblock %}
+
+{% block content %}
+<div class="animate-in" style="max-width:620px; margin:0 auto;">
+
+  <!-- En-tête -->
+  <div style="margin-bottom:24px;">
+    <h1 style="font-size:1.5rem; font-weight:800; color:#1a3d1b;">{{ titre }}</h1>
+    <p style="color:#64748b; font-size:0.85rem; margin-top:4px;">
+      {% if is_edit %}
+        Modifiez les informations du compte. Le mot de passe ne peut pas être changé ici.
+      {% else %}
+        Remplissez le formulaire pour créer un nouveau compte utilisateur.
+      {% endif %}
+    </p>
+  </div>
+
+  <!-- Carte formulaire -->
+  <div class="form-page-card" style="padding:32px;">
+    <form method="post" novalidate>
+      {% csrf_token %}
+
+      <!-- Prénom + Nom -->
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px; margin-bottom:20px;">
+        <div>
+          <label style="display:block; font-size:0.8rem; font-weight:600; color:#334155; margin-bottom:6px;">
+            Prénom <span style="color:#ef4444">*</span>
+          </label>
+          {{ form.first_name }}
+          {% if form.first_name.errors %}
+          <p style="color:#dc2626; font-size:0.75rem; margin-top:4px;">{{ form.first_name.errors.0 }}</p>
+          {% endif %}
+        </div>
+        <div>
+          <label style="display:block; font-size:0.8rem; font-weight:600; color:#334155; margin-bottom:6px;">
+            Nom de famille <span style="color:#ef4444">*</span>
+          </label>
+          {{ form.last_name }}
+          {% if form.last_name.errors %}
+          <p style="color:#dc2626; font-size:0.75rem; margin-top:4px;">{{ form.last_name.errors.0 }}</p>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Email -->
+      <div style="margin-bottom:20px;">
+        <label style="display:block; font-size:0.8rem; font-weight:600; color:#334155; margin-bottom:6px;">
+          Adresse email <span style="color:#ef4444">*</span>
+        </label>
+        {{ form.email }}
+        {% if form.email.errors %}
+        <p style="color:#dc2626; font-size:0.75rem; margin-top:4px;">{{ form.email.errors.0 }}</p>
+        {% endif %}
+      </div>
+
+      <!-- Rôle -->
+      <div style="margin-bottom:20px;">
+        <label style="display:block; font-size:0.8rem; font-weight:600; color:#334155; margin-bottom:6px;">
+          Rôle <span style="color:#ef4444">*</span>
+        </label>
+        {{ form.role }}
+        {% if form.role.errors %}
+        <p style="color:#dc2626; font-size:0.75rem; margin-top:4px;">{{ form.role.errors.0 }}</p>
+        {% endif %}
+        <p style="font-size:0.75rem; color:#94a3b8; margin-top:4px;">
+          <strong>Agent</strong> : saisie de dépenses uniquement.
+          <strong>Chef d'Agence</strong> : accès complet projets + dépenses + utilisateurs.
+        </p>
+      </div>
+
+      {% if not is_edit %}
+      <!-- Séparateur -->
+      <div style="border-top:1px solid #f1f5f9; margin:24px 0; padding-top:4px;">
+        <p style="font-size:0.75rem; font-weight:700; color:#94a3b8; text-transform:uppercase; letter-spacing:0.06em; margin-bottom:16px;">
+          Mot de passe
+        </p>
+      </div>
+
+      <!-- Password 1 -->
+      <div style="margin-bottom:20px;">
+        <label style="display:block; font-size:0.8rem; font-weight:600; color:#334155; margin-bottom:6px;">
+          Mot de passe <span style="color:#ef4444">*</span>
+        </label>
+        <div style="position:relative;">
+          {{ form.password1 }}
+          <button type="button" onclick="togglePwd('id_password1', 'eye1')"
+                  style="position:absolute; right:12px; top:50%; transform:translateY(-50%); background:none; border:none; cursor:pointer; color:#94a3b8; padding:4px;">
+            <svg id="eye1" style="width:16px;height:16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+            </svg>
+          </button>
+        </div>
+        {% if form.password1.errors %}
+        <p style="color:#dc2626; font-size:0.75rem; margin-top:4px;">{{ form.password1.errors.0 }}</p>
+        {% endif %}
+      </div>
+
+      <!-- Password 2 -->
+      <div style="margin-bottom:24px;">
+        <label style="display:block; font-size:0.8rem; font-weight:600; color:#334155; margin-bottom:6px;">
+          Confirmer le mot de passe <span style="color:#ef4444">*</span>
+        </label>
+        <div style="position:relative;">
+          {{ form.password2 }}
+          <button type="button" onclick="togglePwd('id_password2', 'eye2')"
+                  style="position:absolute; right:12px; top:50%; transform:translateY(-50%); background:none; border:none; cursor:pointer; color:#94a3b8; padding:4px;">
+            <svg id="eye2" style="width:16px;height:16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+            </svg>
+          </button>
+        </div>
+        {% if form.password2.errors %}
+        <p style="color:#dc2626; font-size:0.75rem; margin-top:4px;">{{ form.password2.errors.0 }}</p>
+        {% endif %}
+      </div>
+
+      {% else %}
+      <!-- Statut compte (mode édition seulement) -->
+      <div style="margin-bottom:24px;">
+        <div style="display:flex; align-items:center; gap:10px; padding:14px 18px;
+                    background:#f8fafc; border:1px solid #e2e8f0; border-radius:10px;">
+          {{ form.is_active }}
+          <div>
+            <label for="id_is_active" style="font-size:0.82rem; font-weight:600; color:#334155; cursor:pointer;">
+              Compte actif
+            </label>
+            <p style="font-size:0.75rem; color:#94a3b8; margin-top:2px;">
+              Décocher pour bloquer l'accès à cet utilisateur.
+            </p>
+          </div>
+        </div>
+      </div>
+      {% endif %}
+
+      <!-- Erreurs globales -->
+      {% if form.non_field_errors %}
+      <div style="background:#fef2f2; border:1px solid #fecaca; border-radius:10px; padding:12px 16px; margin-bottom:20px;
+                  display:flex; align-items:center; gap:8px; font-size:0.82rem; color:#dc2626;">
+        <svg style="width:16px;height:16px;flex-shrink:0;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+        <span>{{ form.non_field_errors.0 }}</span>
+      </div>
+      {% endif %}
+
+      <!-- Actions -->
+      <div style="display:flex; gap:12px; justify-content:flex-end; padding-top:4px;">
+        <a href="{% url 'core:agent_liste' %}" class="btn-glass-secondary">Annuler</a>
+        <button type="submit" class="btn-glass-primary">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+          </svg>
+          {{ action }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+function togglePwd(inputId, iconId) {
+  var input = document.getElementById(inputId);
+  var icon = document.getElementById(iconId);
+  if (input.type === 'password') {
+    input.type = 'text';
+    icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/>';
+  } else {
+    input.type = 'password';
+    icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>';
+  }
+}
+</script>
+{% endblock %}

@@ -1,0 +1,171 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Déconnexion — Atlas Énergies</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Inter', sans-serif; }
+
+    .right-panel {
+      background: linear-gradient(160deg, #0f2310 0%, #1a3d1b 40%, #276228 100%);
+      position: relative; overflow: hidden;
+    }
+    .right-panel::before {
+      content: ''; position: absolute; inset: 0;
+      background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    }
+    .circle-deco {
+      position: absolute; border-radius: 50%;
+      background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.06);
+    }
+    .logo-glow { filter: drop-shadow(0 0 30px rgba(245,130,30,0.25)); }
+
+    .btn-danger {
+      width: 100%; padding: 13px;
+      background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+      color: #fff; font-weight: 700; font-size: 0.92rem;
+      border: none; border-radius: 12px; cursor: pointer;
+      transition: all 0.2s ease; letter-spacing: 0.02em;
+    }
+    .btn-danger:hover { transform: translateY(-1px); box-shadow: 0 8px 24px rgba(220,38,38,0.35); }
+    .btn-danger:active { transform: translateY(0); }
+
+    .btn-cancel {
+      width: 100%; padding: 13px;
+      background: #f8fafc; color: #475569; font-weight: 600; font-size: 0.92rem;
+      border: 1.5px solid #e2e8f0; border-radius: 12px; cursor: pointer;
+      transition: all 0.2s ease; text-decoration: none;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+    }
+    .btn-cancel:hover { background: #f1f5f9; border-color: #cbd5e1; transform: translateY(-1px); }
+
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .animate-up { animation: slideUp 0.45s ease forwards; }
+    .delay-1 { animation-delay: 0.1s; opacity: 0; }
+    .delay-2 { animation-delay: 0.2s; opacity: 0; }
+  </style>
+</head>
+<body style="min-height:100vh; display:flex; background:#f1f5f9;">
+
+  <!-- ── Left — Logout Panel ── -->
+  <div style="flex:1; display:flex; align-items:center; justify-content:center; padding:40px 32px; background:#fff; min-height:100vh;">
+    <div style="width:100%; max-width:400px;">
+
+      <!-- Logo -->
+      <div style="display:flex; align-items:center; gap:12px; margin-bottom:48px;">
+        <img src="{% static 'img/Lucid_Origin_Professional_modern_logo_design_for_a_company_nam_2.jpg.jpeg' %}"
+             alt="Atlas Énergies"
+             style="width:44px; height:44px; border-radius:12px; object-fit:cover;"/>
+        <div>
+          <p style="font-weight:800; font-size:1rem; color:#1a3d1b; line-height:1">Atlas Énergies</p>
+          <p style="font-size:0.72rem; color:#94a3b8; margin-top:2px">Côte d'Ivoire</p>
+        </div>
+      </div>
+
+      <!-- Heading -->
+      <div class="animate-up" style="margin-bottom:32px;">
+        <!-- Icon -->
+        <div style="width:56px; height:56px; background:#fef2f2; border-radius:16px;
+                    display:flex; align-items:center; justify-content:center; margin-bottom:20px;">
+          <svg style="width:28px; height:28px; color:#ef4444;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+          </svg>
+        </div>
+        <h1 style="font-size:1.65rem; font-weight:900; color:#0f172a; letter-spacing:-0.03em; line-height:1.2; margin-bottom:10px;">
+          Se déconnecter ?
+        </h1>
+        <p style="color:#64748b; font-size:0.875rem; line-height:1.6;">
+          Vous allez quitter votre espace de gestion. Toute session non sauvegardée sera perdue.
+        </p>
+      </div>
+
+      <!-- Session info card -->
+      <div class="animate-up delay-1"
+           style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:14px; padding:16px 18px; margin-bottom:28px;">
+        <div style="display:flex; align-items:center; gap:12px;">
+          <div style="width:36px; height:36px; background:rgba(45,122,47,0.1); border-radius:10px;
+                      display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+            <svg style="width:18px; height:18px; color:#2d7a2f;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+            </svg>
+          </div>
+          <div>
+            <p style="font-size:0.8rem; font-weight:600; color:#334155;">
+              {% if user.get_full_name %}{{ user.get_full_name }}{% else %}{{ user.email }}{% endif %}
+            </p>
+            <p style="font-size:0.72rem; color:#94a3b8; margin-top:2px;">
+              {% if user.role == 'chef' %}Chef d'Agence{% else %}Agent{% endif %}
+              &nbsp;·&nbsp; {{ user.email }}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="animate-up delay-2" style="display:flex; flex-direction:column; gap:12px;">
+        <form method="post" action="{% url 'account_logout' %}">
+          {% csrf_token %}
+          <button type="submit" class="btn-danger">
+            Oui, me déconnecter
+          </button>
+        </form>
+
+        <a href="javascript:history.back()" class="btn-cancel">
+          <svg style="width:16px; height:16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+          </svg>
+          Annuler — rester connecté
+        </a>
+      </div>
+
+      <p style="text-align:center; color:#cbd5e1; font-size:0.72rem; margin-top:40px;">
+        Atlas Énergies © {% now "Y" %} — Usage interne uniquement
+      </p>
+    </div>
+  </div>
+
+  <!-- ── Right — Branding Panel ── -->
+  <div class="right-panel" style="flex:1; display:flex; align-items:center; justify-content:center; padding:60px 40px; min-height:100vh; position:relative;">
+    <div class="circle-deco" style="width:400px; height:400px; top:-100px; right:-100px;"></div>
+    <div class="circle-deco" style="width:250px; height:250px; bottom:-60px; left:-60px;"></div>
+    <div class="circle-deco" style="width:150px; height:150px; top:40%; right:10%;"></div>
+
+    <div style="position:relative; z-index:10; text-align:center; max-width:360px;">
+      <div style="display:inline-block; margin-bottom:32px;" class="logo-glow">
+        <img src="{% static 'img/Lucid_Origin_Professional_modern_logo_design_for_a_company_nam_2.jpg.jpeg' %}"
+             alt="Atlas Énergies Logo"
+             style="width:120px; height:120px; border-radius:24px; object-fit:cover;
+                    border: 2px solid rgba(255,255,255,0.12);
+                    box-shadow: 0 24px 60px rgba(0,0,0,0.4);"/>
+      </div>
+      <h2 style="font-size:1.8rem; font-weight:900; color:#ffffff; letter-spacing:-0.04em; line-height:1.1; margin-bottom:16px;">
+        À bientôt !
+      </h2>
+      <p style="font-size:0.9rem; color:rgba(255,255,255,0.5); line-height:1.6; margin-bottom:32px;">
+        Votre session sera fermée en toute sécurité.
+      </p>
+      <div style="display:flex; flex-direction:column; gap:10px; text-align:left;">
+        <div style="display:flex; align-items:center; gap:12px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.08); border-radius:12px; padding:12px 16px;">
+          <span style="font-size:1.1rem;">🔒</span>
+          <p style="font-size:0.76rem; color:rgba(255,255,255,0.55);">Vos données restent protégées</p>
+        </div>
+        <div style="display:flex; align-items:center; gap:12px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.08); border-radius:12px; padding:12px 16px;">
+          <span style="font-size:1.1rem;">📊</span>
+          <p style="font-size:0.76rem; color:rgba(255,255,255,0.55);">Vos projets et dépenses sont sauvegardés</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>

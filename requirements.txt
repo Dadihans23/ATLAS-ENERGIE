@@ -1,0 +1,8 @@
+# ─────────────────────────────────────────────
+#  GestionProjetAgence – Atlas Énergies
+#  Ce fichier = alias vers requirements/base.txt
+#
+#  En développement : pip install -r requirements/dev.txt
+#  En production    : pip install -r requirements/base.txt
+# ─────────────────────────────────────────────
+-r requirements/base.txt

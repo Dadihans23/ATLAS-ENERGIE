@@ -1,0 +1,56 @@
+<!-- Partial : table d'audit réutilisable -->
+<div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+  <div class="px-5 py-3 border-b border-gray-50">
+    <h3 class="font-bold text-gray-700 text-sm">{{ titre }}</h3>
+  </div>
+  <div class="overflow-x-auto">
+    <table class="table table-xs">
+      <thead class="bg-gray-50">
+        <tr class="text-xs text-gray-400 uppercase tracking-wide">
+          <th>Date & Heure</th>
+          <th>Action</th>
+          <th>Objet</th>
+          <th>Par</th>
+          <th>Raison / Modification</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for record in records %}
+        <tr class="hover border-b border-gray-50">
+          <td class="text-xs whitespace-nowrap">
+            {{ record.history_date|date:"d/m/Y H:i:s" }}
+          </td>
+          <td>
+            {% if record.history_type == '+' %}
+              <span class="badge badge-success badge-xs gap-1">+ Création</span>
+            {% elif record.history_type == '~' %}
+              <span class="badge badge-warning badge-xs gap-1">~ Modification</span>
+            {% elif record.history_type == '-' %}
+              <span class="badge badge-error badge-xs gap-1">− Suppression</span>
+            {% endif %}
+          </td>
+          <td class="font-mono text-xs text-gray-700">
+            {{ record }}
+          </td>
+          <td class="text-xs text-gray-500">
+            {% if record.history_user %}
+              {{ record.history_user.get_full_name }}
+            {% else %}
+              <span class="text-gray-300">Système</span>
+            {% endif %}
+          </td>
+          <td class="text-xs text-gray-400 max-w-xs truncate">
+            {{ record.history_change_reason|default:"—" }}
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="5" class="text-center py-8 text-gray-400 text-sm">
+            Aucun enregistrement dans l'historique.
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>

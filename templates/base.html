@@ -1,0 +1,518 @@
+{% load static currency_tags %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>{% block title %}Atlas Énergies{% endblock %} — GestionProjet</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.10/dist/full.min.css" rel="stylesheet"/>
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <style>
+    /* ── Variables ─────────────────────────────────────────── */
+    :root {
+      --sidebar-w: 252px;
+      --green:       #2d7a2f;   /* vert logo */
+      --green-dark:  #1f5c21;
+      --green-light: #e8f5e9;
+      --orange:      #f5821f;   /* orange logo */
+    }
+
+    /* ── Background neutre ─────────────────────────────────── */
+    body {
+      min-height: 100vh;
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background: #f1f5f9;
+    }
+
+    /* ── Sidebar ───────────────────────────────────────────── */
+    #sidebar {
+      width: var(--sidebar-w);
+      min-height: 100vh;
+      position: fixed;
+      top: 0; left: 0;
+      z-index: 40;
+      background: #0f172a;
+      border-right: 1px solid rgba(255,255,255,0.05);
+      box-shadow: 1px 0 0 rgba(255,255,255,0.04);
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── Brand ─────────────────────────────────────────────── */
+    .brand-text {
+      color: #fff;
+      font-weight: 800;
+    }
+
+    /* ── Nav items ─────────────────────────────────────────── */
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-size: 0.82rem;
+      font-weight: 500;
+      color: #94a3b8;
+      transition: all 0.18s ease;
+      text-decoration: none;
+      margin: 1px 0;
+    }
+    .nav-item:hover {
+      color: #e2e8f0;
+      background: rgba(255,255,255,0.06);
+    }
+    .nav-item.active {
+      color: #fff;
+      background: rgba(45,122,47,0.18);
+    }
+    .nav-item.active::after {
+      content: '';
+      position: absolute;
+      left: 0; top: 20%; bottom: 20%;
+      width: 2px;
+      background: #2d7a2f;
+      border-radius: 0 2px 2px 0;
+    }
+    .nav-item.active { position: relative; }
+    .nav-section {
+      font-size: 0.63rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #334155;
+      padding: 16px 12px 5px;
+    }
+
+    /* ── Main layout ───────────────────────────────────────── */
+    #main-content {
+      margin-left: var(--sidebar-w);
+      position: relative;
+      z-index: 1;
+    }
+    @media (max-width: 768px) {
+      #sidebar { transform: translateX(-100%); transition: transform 0.3s ease; }
+      #sidebar.open { transform: translateX(0); }
+      #main-content { margin-left: 0; }
+    }
+
+    /* ── Topbar ────────────────────────────────────────────── */
+    #topbar {
+      background: #fff;
+      border-bottom: 1px solid #e2e8f0;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    }
+
+    /* ── Card standard ─────────────────────────────────────── */
+    .glass-card {
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 16px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+      transition: box-shadow 0.2s ease, transform 0.2s ease;
+    }
+    .glass-card:hover {
+      box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+      transform: translateY(-1px);
+    }
+
+    /* ── KPI card ──────────────────────────────────────────── */
+    .kpi-card {
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 16px;
+      padding: 22px 24px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+      transition: box-shadow 0.2s ease, transform 0.2s ease;
+    }
+    .kpi-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+    }
+
+    /* ── Icon badge ────────────────────────────────────────── */
+    .icon-badge {
+      width: 42px; height: 42px;
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .icon-badge-blue   { background: #2d7a2f; }
+    .icon-badge-green  { background: #10b981; }
+    .icon-badge-amber  { background: #f59e0b; }
+    .icon-badge-red    { background: #ef4444; }
+    .icon-badge-purple { background: #8b5cf6; }
+
+    /* ── Progress bar ──────────────────────────────────────── */
+    .progress-modern {
+      height: 6px;
+      background: #e2e8f0;
+      border-radius: 99px;
+      overflow: hidden;
+    }
+    .progress-modern-fill {
+      height: 100%;
+      border-radius: 99px;
+      background: #2d7a2f;
+      transition: width 0.7s cubic-bezier(0.4,0,0.2,1);
+    }
+    .progress-modern-fill.warning { background: #f59e0b; }
+    .progress-modern-fill.danger  { background: #ef4444; }
+
+    /* ── Boutons ───────────────────────────────────────────── */
+    .btn-glass-primary {
+      background: #2d7a2f;
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      padding: 9px 18px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.18s ease, transform 0.18s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      text-decoration: none;
+    }
+    .btn-glass-primary:hover {
+      background: #1f5c21;
+      transform: translateY(-1px);
+      color: #fff;
+    }
+    .btn-glass-secondary {
+      background: #fff;
+      color: #334155;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 9px 18px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: border-color 0.18s, background 0.18s, transform 0.18s;
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      text-decoration: none;
+    }
+    .btn-glass-secondary:hover {
+      border-color: #94a3b8;
+      background: #f8fafc;
+      transform: translateY(-1px);
+      color: #0f172a;
+    }
+
+    /* ── Table ─────────────────────────────────────────────── */
+    .modern-table { width: 100%; border-collapse: separate; border-spacing: 0; }
+    .modern-table thead th {
+      background: #f8fafc;
+      color: #64748b;
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      padding: 10px 16px;
+    }
+    .modern-table tbody tr {
+      border-bottom: 1px solid #f1f5f9;
+      transition: background 0.12s;
+    }
+    .modern-table tbody tr:hover { background: #f8fafc; }
+    .modern-table tbody tr:last-child { border-bottom: none; }
+    .modern-table td { padding: 10px 16px; }
+
+    /* ── Badges statut ─────────────────────────────────────── */
+    .status-ok {
+      background: #f0fdf4; color: #166534;
+      border: 1px solid #bbf7d0; border-radius: 99px;
+      padding: 2px 10px; font-size: 0.7rem; font-weight: 600;
+    }
+    .status-warn {
+      background: #fffbeb; color: #92400e;
+      border: 1px solid #fde68a; border-radius: 99px;
+      padding: 2px 10px; font-size: 0.7rem; font-weight: 600;
+    }
+    .status-danger {
+      background: #fef2f2; color: #991b1b;
+      border: 1px solid #fecaca; border-radius: 99px;
+      padding: 2px 10px; font-size: 0.7rem; font-weight: 600;
+    }
+    .status-info {
+      background: #f1f8f1; color: #276228;
+      border: 1px solid #a5d6a7; border-radius: 99px;
+      padding: 2px 10px; font-size: 0.7rem; font-weight: 600;
+    }
+
+    /* ── Avatar initiales ──────────────────────────────────── */
+    .avatar-initials {
+      width: 36px; height: 36px;
+      background: #2d7a2f;
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      color: #fff;
+      font-size: 0.72rem;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    /* ── Flash messages ────────────────────────────────────── */
+    .flash-success {
+      background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 12px;
+      color: #166534; padding: 12px 18px; font-size: 0.85rem; font-weight: 500;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .flash-error {
+      background: #fef2f2; border: 1px solid #fecaca; border-radius: 12px;
+      color: #991b1b; padding: 12px 18px; font-size: 0.85rem; font-weight: 500;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .flash-info {
+      background: #f1f8f1; border: 1px solid #a5d6a7; border-radius: 12px;
+      color: #276228; padding: 12px 18px; font-size: 0.85rem; font-weight: 500;
+      display: flex; align-items: center; gap: 10px;
+    }
+
+    /* ── Scrollbar ─────────────────────────────────────────── */
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 99px; }
+    ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+    /* ── Animations ────────────────────────────────────────── */
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(14px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .animate-in { animation: fadeInUp 0.4s cubic-bezier(0.4,0,0.2,1) both; }
+    .delay-1 { animation-delay: 0.05s; }
+    .delay-2 { animation-delay: 0.10s; }
+    .delay-3 { animation-delay: 0.15s; }
+    .delay-4 { animation-delay: 0.20s; }
+
+    /* ── Form pages ────────────────────────────────────────── */
+    .form-page-card {
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 16px;
+      box-shadow: 0 1px 6px rgba(0,0,0,0.06);
+    }
+    .form-input-modern {
+      background: #f8fafc !important;
+      border: 1.5px solid #e2e8f0 !important;
+      border-radius: 8px !important;
+      transition: border-color 0.18s, box-shadow 0.18s !important;
+      color: #0f172a !important;
+    }
+    .form-input-modern:focus {
+      background: #fff !important;
+      border-color: #2d7a2f !important;
+      box-shadow: 0 0 0 3px rgba(45,122,47,0.12) !important;
+      outline: none !important;
+    }
+  </style>
+</head>
+
+<body>
+<!-- ── Sidebar ──────────────────────────────────────────────── -->
+<aside id="sidebar">
+  <!-- Brand / Logo -->
+  <div class="px-4 py-4" style="border-bottom:1px solid rgba(255,255,255,0.06)">
+    <a href="{% url 'dashboard:accueil' %}" style="display:flex; align-items:center; gap:10px; text-decoration:none">
+      <img src="{% static 'img/Lucid_Origin_Professional_modern_logo_design_for_a_company_nam_2.jpg.jpeg' %}"
+           alt="Atlas Énergies"
+           style="height:44px; width:auto; border-radius:8px; background:#fff; padding:3px; object-fit:contain; flex-shrink:0">
+      <div>
+        <span style="color:#fff; font-size:0.78rem; font-weight:800; display:block; line-height:1.1">ATLAS ÉNERGIES</span>
+        <span style="color:#475569; font-size:0.62rem">Gestion de projets</span>
+      </div>
+    </a>
+  </div>
+
+  <!-- User badge -->
+  <div class="px-4 py-3" style="border-bottom:1px solid rgba(255,255,255,0.05)">
+    <div class="flex items-center gap-3">
+      <div class="avatar-initials" style="width:34px; height:34px; border-radius:9px; font-size:0.72rem; flex-shrink:0">
+        {{ request.user.first_name|first|upper }}{{ request.user.last_name|first|upper }}
+      </div>
+      <div class="min-w-0 flex-1">
+        <p style="color:#e2e8f0; font-size:0.8rem; font-weight:600; overflow:hidden; text-overflow:ellipsis; white-space:nowrap">
+          {{ request.user.get_full_name }}
+        </p>
+        {% if request.user.is_chef %}
+          <span style="color:#94a3b8; font-size:0.65rem">Chef d'Agence</span>
+        {% else %}
+          <span style="color:#94a3b8; font-size:0.65rem">Agent</span>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Navigation -->
+  <nav class="flex-1 px-3 py-3 overflow-y-auto relative">
+    <div class="nav-section">Navigation</div>
+    <a href="{% url 'dashboard:accueil' %}"
+       class="nav-item {% if request.resolver_match.namespace == 'dashboard' and 'historique' not in request.path %}active{% endif %}">
+      <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75"
+              d="M4 5a1 1 0 011-1h4a1 1 0 011 1v5a1 1 0 01-1 1H5a1 1 0 01-1-1V5zm10 0a1 1 0 011-1h4a1 1 0 011 1v3a1 1 0 01-1 1h-4a1 1 0 01-1-1V5zM4 15a1 1 0 011-1h4a1 1 0 011 1v3a1 1 0 01-1 1H5a1 1 0 01-1-1v-3zm10-2a1 1 0 011-1h4a1 1 0 011 1v5a1 1 0 01-1 1h-4a1 1 0 01-1-1v-5z"/>
+      </svg>
+      Tableau de bord
+    </a>
+
+    {% if request.user.is_chef %}
+    <div class="nav-section">Projets</div>
+    <a href="{% url 'projets:liste' %}"
+       class="nav-item {% if request.resolver_match.namespace == 'projets' %}active{% endif %}">
+      <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75"
+              d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V7z"/>
+      </svg>
+      Projets
+    </a>
+    {% endif %}
+
+    <div class="nav-section">Dépenses</div>
+    <a href="{% url 'depenses:exploitation_liste' %}"
+       class="nav-item {% if 'exploitation' in request.path %}active{% endif %}">
+      <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75"
+              d="M9 14l6-6m-5.5.5h.01m4.99 5h.01M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2z"/>
+      </svg>
+      Dépenses exploitation
+    </a>
+    <a href="{% url 'depenses:fg_liste' %}"
+       class="nav-item {% if 'frais-generaux' in request.path %}active{% endif %}">
+      <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75"
+              d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
+      </svg>
+      Frais généraux
+    </a>
+
+    {% if request.user.is_chef %}
+    <div class="nav-section">Administration</div>
+    <a href="{% url 'dashboard:historique' %}"
+       class="nav-item {% if 'historique' in request.path %}active{% endif %}">
+      <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75"
+              d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+      </svg>
+      Journal d'audit
+    </a>
+    <a href="{% url 'core:agent_liste' %}"
+       class="nav-item {% if 'utilisateurs' in request.path %}active{% endif %}">
+      <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75"
+              d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
+      </svg>
+      Utilisateurs
+    </a>
+    <a href="/admin/" class="nav-item">
+      <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75"
+              d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+      </svg>
+      Administration
+    </a>
+    {% endif %}
+  </nav>
+
+  <!-- Logout -->
+  <div class="px-3 py-3" style="border-top:1px solid rgba(255,255,255,0.05)">
+    <a href="{% url 'account_logout' %}" class="nav-item" style="color:#64748b">
+      <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75"
+              d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+      </svg>
+      Déconnexion
+    </a>
+  </div>
+</aside>
+
+<!-- ── Main ─────────────────────────────────────────────────── -->
+<div id="main-content" class="min-h-screen flex flex-col">
+
+  <!-- Topbar -->
+  <header id="topbar" class="sticky top-0 z-30">
+    <div class="flex items-center justify-between px-6 h-14">
+      <button id="sidebar-toggle" class="md:hidden p-2 rounded-xl hover:bg-sky-50 transition-colors">
+        <svg class="w-5 h-5 text-sky-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+        </svg>
+      </button>
+
+      <!-- Breadcrumb -->
+      <nav class="hidden md:flex items-center gap-2 text-sm">
+        <a href="{% url 'dashboard:accueil' %}"
+           class="text-green-600 hover:text-green-700 transition-colors font-medium">Atlas Énergies</a>
+        {% block breadcrumb %}{% endblock %}
+      </nav>
+
+      <!-- Right -->
+      <div class="flex items-center gap-3">
+        <span class="text-xs font-medium hidden sm:block"
+              style="color:#94a3b8; font-size:0.78rem">
+          {% now "d F Y" %}
+        </span>
+        {% if request.user.is_chef %}
+          <span style="background:#f1f8f1; color:#276228; border:1px solid #c8e6c9; border-radius:8px; padding:4px 12px; font-size:0.72rem; font-weight:600">
+            Chef d'Agence
+          </span>
+        {% else %}
+          <span style="background:#f8fafc; color:#64748b; border:1px solid #e2e8f0; border-radius:8px; padding:4px 12px; font-size:0.72rem; font-weight:600">
+            Agent
+          </span>
+        {% endif %}
+      </div>
+    </div>
+  </header>
+
+  <!-- Flash messages -->
+  {% if messages %}
+  <div class="px-6 pt-4 space-y-2">
+    {% for message in messages %}
+    <div class="alert-dismissible
+      {% if message.tags == 'success' %}flash-success
+      {% elif message.tags == 'error' %}flash-error
+      {% else %}flash-info{% endif %}">
+      {% if message.tags == 'success' %}
+        <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+        </svg>
+      {% else %}
+        <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+      {% endif %}
+      {{ message }}
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <!-- Content -->
+  <main class="flex-1 p-6">
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="text-center py-4" style="color:#94a3b8; font-size:0.72rem; border-top:1px solid #f1f5f9">
+    Atlas Énergies © {% now "Y" %} — GestionProjetAgence v1.0
+  </footer>
+</div>
+
+<script>
+  document.getElementById('sidebar-toggle')?.addEventListener('click', () => {
+    document.getElementById('sidebar').classList.toggle('open');
+  });
+  setTimeout(() => {
+    document.querySelectorAll('.alert-dismissible').forEach(el => {
+      el.style.transition = 'opacity 0.5s, transform 0.5s';
+      el.style.opacity = '0'; el.style.transform = 'translateY(-8px)';
+      setTimeout(() => el.remove(), 500);
+    });
+  }, 4000);
+</script>
+</body>
+</html>

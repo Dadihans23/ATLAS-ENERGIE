@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% load currency_tags %}
+
+{% block title %}Journal d'audit{% endblock %}
+{% block breadcrumb %}
+<li><a href="{% url 'dashboard:accueil' %}" class="text-gray-400">Tableau de bord</a></li>
+<li class="text-gray-600 font-medium">Journal d'audit</li>
+{% endblock %}
+
+{% block content %}
+
+<div class="mb-6">
+  <h1 class="text-2xl font-bold text-gray-800">Journal d'audit</h1>
+  <p class="text-gray-400 text-sm mt-0.5">
+    Historique complet de toutes les actions — 100 dernières entrées par type.
+  </p>
+</div>
+
+<!-- Tabs -->
+<div role="tablist" class="tabs tabs-bordered mb-6">
+  <input type="radio" name="audit_tabs" role="tab" class="tab" aria-label="Dépenses exploitation" checked/>
+  <div role="tabpanel" class="tab-content pt-4">
+    {% include "dashboard/_audit_table.html" with records=hist_exploitation titre="Dépenses d'exploitation" color="blue" %}
+  </div>
+
+  <input type="radio" name="audit_tabs" role="tab" class="tab" aria-label="Frais généraux"/>
+  <div role="tabpanel" class="tab-content pt-4">
+    {% include "dashboard/_audit_table.html" with records=hist_fg titre="Frais généraux" color="purple" %}
+  </div>
+
+  <input type="radio" name="audit_tabs" role="tab" class="tab" aria-label="Projets"/>
+  <div role="tabpanel" class="tab-content pt-4">
+    {% include "dashboard/_audit_table.html" with records=hist_projets titre="Projets" color="green" %}
+  </div>
+</div>
+
+{% endblock %}

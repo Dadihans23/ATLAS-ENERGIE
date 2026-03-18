@@ -1,0 +1,173 @@
+{% extends "base.html" %}
+{% load currency_tags %}
+
+{% block title %}Mon espace{% endblock %}
+{% block breadcrumb %}
+  <span style="color:rgba(100,116,139,0.4)">/</span>
+  <span style="color:#276228; font-weight:600">Mon espace</span>
+{% endblock %}
+
+{% block content %}
+
+<!-- ── En-tête ─────────────────────────────────────────────── -->
+<div class="mb-8 animate-in">
+  <h1 style="font-size:1.6rem; font-weight:800; color:#1a3d1b; line-height:1.2">
+    Bonjour, {{ request.user.first_name }} 👋
+  </h1>
+  <p style="color:#64748b; font-size:0.85rem; margin-top:4px">
+    Espace de saisie — vos dépenses en un coup d'œil
+  </p>
+</div>
+
+<!-- ── KPIs ───────────────────────────────────────────────── -->
+<div class="grid grid-cols-2 gap-5 max-w-lg mb-8 animate-in delay-1">
+  <div class="kpi-card">
+    <div class="icon-badge icon-badge-blue mb-4">
+      <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M9 14l6-6m-5.5.5h.01m4.99 5h.01M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2z"/>
+      </svg>
+    </div>
+    <p style="font-size:2.4rem; font-weight:900; color:#276228; line-height:1; letter-spacing:-0.02em">
+      {{ nb_exploitation }}
+    </p>
+    <p style="color:#64748b; font-size:0.72rem; font-weight:600; margin-top:6px; text-transform:uppercase; letter-spacing:0.05em">
+      Dépenses exploitation
+    </p>
+  </div>
+
+  <div class="kpi-card">
+    <div class="icon-badge icon-badge-green mb-4">
+      <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
+      </svg>
+    </div>
+    <p style="font-size:2.4rem; font-weight:900; color:#276228; line-height:1; letter-spacing:-0.02em">
+      {{ nb_fg }}
+    </p>
+    <p style="color:#64748b; font-size:0.72rem; font-weight:600; margin-top:6px; text-transform:uppercase; letter-spacing:0.05em">
+      Frais généraux
+    </p>
+  </div>
+</div>
+
+<!-- ── Actions rapides ────────────────────────────────────── -->
+<div class="mb-8 animate-in delay-2">
+  <h2 style="font-size:0.85rem; font-weight:700; color:#94a3b8; text-transform:uppercase; letter-spacing:0.08em; margin-bottom:14px">
+    Actions rapides
+  </h2>
+  <div class="flex gap-3 flex-wrap">
+    <a href="{% url 'depenses:exploitation_creer' %}" class="btn-glass-primary" style="padding:12px 22px">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M9 14l6-6m-5.5.5h.01m4.99 5h.01M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2z"/>
+      </svg>
+      Nouvelle dépense exploitation
+    </a>
+    <a href="{% url 'depenses:fg_creer' %}" class="btn-glass-secondary" style="padding:12px 22px">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
+      </svg>
+      Nouveau frais général
+    </a>
+  </div>
+</div>
+
+<!-- ── Mes saisies récentes ───────────────────────────────── -->
+<div class="grid grid-cols-1 xl:grid-cols-2 gap-5 animate-in delay-3">
+
+  <div class="glass-card overflow-hidden">
+    <div class="flex items-center justify-between px-5 py-4" style="border-bottom:1px solid rgba(200,230,201,0.3)">
+      <div class="flex items-center gap-3">
+        <div class="icon-badge icon-badge-blue" style="width:32px; height:32px; border-radius:10px">
+          <svg class="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M9 14l6-6m-5.5.5h.01m4.99 5h.01M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2z"/>
+          </svg>
+        </div>
+        <span style="font-weight:700; font-size:0.82rem; color:#1a3d1b">Mes dépenses exploitation</span>
+      </div>
+      <a href="{% url 'depenses:exploitation_liste' %}"
+         style="color:#2d7a2f; font-size:0.75rem; font-weight:600; text-decoration:none">Voir tout →</a>
+    </div>
+    <table class="modern-table">
+      <thead>
+        <tr><th>N°</th><th>Projet</th><th style="text-align:right">Montant</th><th>Date</th></tr>
+      </thead>
+      <tbody>
+        {% for d in mes_exploitation %}
+        <tr>
+          <td>
+            <span style="font-family:monospace; font-size:0.72rem; font-weight:700; color:#276228;
+                         background:rgba(200,230,201,0.3); padding:2px 8px; border-radius:6px">
+              {{ d.numero_saisie }}
+            </span>
+          </td>
+          <td style="font-size:0.78rem; color:#334155; max-width:110px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap">
+            {{ d.centre_budgetaire.nom }}
+          </td>
+          <td style="text-align:right; font-weight:800; font-size:0.82rem; color:#276228">
+            {{ d.montant_xof|xof }}
+          </td>
+          <td style="font-size:0.72rem; color:#94a3b8">{{ d.date_saisie|date:"d/m/Y" }}</td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="4" style="text-align:center; padding:28px; color:#94a3b8; font-size:0.82rem">
+            Aucune saisie pour le moment
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <div class="glass-card overflow-hidden">
+    <div class="flex items-center justify-between px-5 py-4" style="border-bottom:1px solid rgba(200,230,201,0.3)">
+      <div class="flex items-center gap-3">
+        <div class="icon-badge icon-badge-green" style="width:32px; height:32px; border-radius:10px">
+          <svg class="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
+          </svg>
+        </div>
+        <span style="font-weight:700; font-size:0.82rem; color:#1a3d1b">Mes frais généraux</span>
+      </div>
+      <a href="{% url 'depenses:fg_liste' %}"
+         style="color:#2d7a2f; font-size:0.75rem; font-weight:600; text-decoration:none">Voir tout →</a>
+    </div>
+    <table class="modern-table">
+      <thead>
+        <tr><th>N°</th><th>Ligne</th><th style="text-align:right">Montant</th><th>Date</th></tr>
+      </thead>
+      <tbody>
+        {% for d in mes_fg %}
+        <tr>
+          <td>
+            <span style="font-family:monospace; font-size:0.72rem; font-weight:700; color:#276228;
+                         background:rgba(200,230,201,0.4); padding:2px 8px; border-radius:6px">
+              {{ d.numero_saisie }}
+            </span>
+          </td>
+          <td style="font-size:0.78rem; color:#334155">{{ d.get_ligne_budgetaire_display }}</td>
+          <td style="text-align:right; font-weight:800; font-size:0.82rem; color:#276228">
+            {{ d.montant_xof|xof }}
+          </td>
+          <td style="font-size:0.72rem; color:#94a3b8">{{ d.date_saisie|date:"d/m/Y" }}</td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="4" style="text-align:center; padding:28px; color:#94a3b8; font-size:0.82rem">
+            Aucune saisie pour le moment
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+</div>
+
+{% endblock %}
