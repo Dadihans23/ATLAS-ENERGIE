@@ -92,10 +92,116 @@
       position: relative;
       z-index: 1;
     }
+
+    /* ── Overlay mobile ────────────────────────────────────── */
+    #sidebar-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.55);
+      z-index: 39;
+      backdrop-filter: blur(2px);
+    }
+    #sidebar-overlay.show { display: block; }
+
+    /* ════════════════════════════════════════════════════════
+       RESPONSIVE MOBILE  (≤ 768px)
+       — Aucune modification du layout desktop au-dessus
+    ════════════════════════════════════════════════════════ */
     @media (max-width: 768px) {
-      #sidebar { transform: translateX(-100%); transition: transform 0.3s ease; }
+
+      /* Sidebar masquée par défaut, glisse à l'ouverture */
+      #sidebar {
+        transform: translateX(-100%);
+        transition: transform 0.3s cubic-bezier(0.4,0,0.2,1);
+        z-index: 50;
+      }
       #sidebar.open { transform: translateX(0); }
+
+      /* Contenu plein écran */
       #main-content { margin-left: 0; }
+
+      /* Padding réduit sur mobile */
+      main.flex-1 { padding: 14px 12px !important; }
+
+      /* Topbar plus compacte */
+      #topbar .flex { padding-left: 12px; padding-right: 12px; }
+
+      /* Flash messages */
+      .px-6.pt-4 { padding-left: 12px !important; padding-right: 12px !important; }
+
+      /* KPI cards : moins de padding */
+      .kpi-card { padding: 16px 14px; }
+      .kpi-card p[style*="2.4rem"] { font-size: 1.9rem !important; }
+
+      /* Tables : scroll horizontal */
+      .glass-card { overflow: visible; }
+      .modern-table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+      .modern-table { min-width: 560px; }
+
+      /* Cacher colonnes secondaires sur très petit écran */
+      .mobile-hide { display: none !important; }
+
+      /* Boutons pleine largeur dans certains contextes */
+      .mobile-stack {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 8px !important;
+      }
+      .mobile-stack > * { width: 100% !important; justify-content: center !important; }
+
+      /* Form cards */
+      .form-page-card { padding: 20px 16px !important; }
+
+      /* Grilles 1 colonne sur très petit écran */
+      .mobile-1col { grid-template-columns: 1fr !important; }
+
+      /* Footer plus compact */
+      footer { padding: 10px 12px; font-size: 0.68rem; }
+    }
+
+    /* ── En-têtes de page : wrap sur mobile ────────────────── */
+    @media (max-width: 640px) {
+      /* Flex row → column pour titre + bouton d'action */
+      .page-header-flex {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 12px !important;
+      }
+      .page-header-flex .btn-glass-primary,
+      .page-header-flex .btn-glass-secondary {
+        width: 100%;
+        justify-content: center;
+      }
+
+      /* Dropdown export pleine largeur */
+      .dropdown { width: 100%; }
+      .dropdown > * { width: 100% !important; }
+
+      /* Grilles filtres : empiler */
+      .filter-row {
+        flex-direction: column !important;
+        align-items: stretch !important;
+      }
+      .filter-row select,
+      .filter-row input {
+        width: 100% !important;
+      }
+
+      /* Masquer les colonnes secondaires dans les tables */
+      .col-hide-sm { display: none !important; }
+    }
+
+    @media (max-width: 480px) {
+      main.flex-1 { padding: 10px 8px !important; }
+      #topbar .flex { padding-left: 8px; padding-right: 8px; }
+      .kpi-card { padding: 12px 12px; border-radius: 12px; }
+      .glass-card { border-radius: 12px; }
+
+      /* Titres h1 plus petits */
+      h1[style*="1.5rem"], h1[style*="1.6rem"] {
+        font-size: 1.25rem !important;
+      }
     }
 
     /* ── Topbar ────────────────────────────────────────────── */
@@ -315,6 +421,9 @@
 </head>
 
 <body>
+<!-- Overlay mobile (ferme la sidebar au clic extérieur) -->
+<div id="sidebar-overlay"></div>
+
 <!-- ── Sidebar ──────────────────────────────────────────────── -->
 <aside id="sidebar">
   <!-- Brand / Logo -->
@@ -437,31 +546,39 @@
   <!-- Topbar -->
   <header id="topbar" class="sticky top-0 z-30">
     <div class="flex items-center justify-between px-6 h-14">
-      <button id="sidebar-toggle" class="md:hidden p-2 rounded-xl hover:bg-sky-50 transition-colors">
-        <svg class="w-5 h-5 text-sky-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <button id="sidebar-toggle" class="md:hidden p-2 rounded-xl transition-colors"
+              style="color:#2d7a2f; background:none; border:none; cursor:pointer;"
+              onmouseover="this.style.background='#f1f8f1'" onmouseout="this.style.background='none'">
+        <svg id="hamburger-icon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
         </svg>
       </button>
 
-      <!-- Breadcrumb -->
-      <nav class="hidden md:flex items-center gap-2 text-sm">
-        <a href="{% url 'dashboard:accueil' %}"
-           class="text-green-600 hover:text-green-700 transition-colors font-medium">Atlas Énergies</a>
-        {% block breadcrumb %}{% endblock %}
-      </nav>
+      <!-- Breadcrumb (desktop) / Titre page (mobile) -->
+      <div class="flex-1 flex items-center">
+        <nav class="hidden md:flex items-center gap-2 text-sm">
+          <a href="{% url 'dashboard:accueil' %}"
+             class="text-green-600 hover:text-green-700 transition-colors font-medium">Atlas Énergies</a>
+          {% block breadcrumb %}{% endblock %}
+        </nav>
+        <!-- Titre sur mobile uniquement -->
+        <span class="md:hidden" style="font-size:0.88rem; font-weight:700; color:#1a3d1b;">
+          {% block page_title_mobile %}Atlas Énergies{% endblock %}
+        </span>
+      </div>
 
       <!-- Right -->
-      <div class="flex items-center gap-3">
-        <span class="text-xs font-medium hidden sm:block"
-              style="color:#94a3b8; font-size:0.78rem">
-          {% now "d F Y" %}
+      <div class="flex items-center gap-2">
+        <span class="hidden sm:block" style="color:#94a3b8; font-size:0.72rem;">
+          {% now "d/m/Y" %}
         </span>
         {% if request.user.is_chef %}
-          <span style="background:#f1f8f1; color:#276228; border:1px solid #c8e6c9; border-radius:8px; padding:4px 12px; font-size:0.72rem; font-weight:600">
-            Chef d'Agence
+          <span style="background:#f1f8f1; color:#276228; border:1px solid #c8e6c9; border-radius:8px; padding:3px 10px; font-size:0.68rem; font-weight:600; white-space:nowrap;">
+            <span class="hidden sm:inline">Chef d'Agence</span>
+            <span class="sm:hidden">Chef</span>
           </span>
         {% else %}
-          <span style="background:#f8fafc; color:#64748b; border:1px solid #e2e8f0; border-radius:8px; padding:4px 12px; font-size:0.72rem; font-weight:600">
+          <span style="background:#f8fafc; color:#64748b; border:1px solid #e2e8f0; border-radius:8px; padding:3px 10px; font-size:0.68rem; font-weight:600;">
             Agent
           </span>
         {% endif %}
@@ -496,6 +613,7 @@
   <main class="flex-1 p-6">
     {% block content %}{% endblock %}
   </main>
+  {% block extra_js %}{% endblock %}
 
   <footer class="text-center py-4" style="color:#94a3b8; font-size:0.72rem; border-top:1px solid #f1f5f9">
     Atlas Énergies © {% now "Y" %} — GestionProjetAgence v1.0
@@ -503,16 +621,61 @@
 </div>
 
 <script>
-  document.getElementById('sidebar-toggle')?.addEventListener('click', () => {
-    document.getElementById('sidebar').classList.toggle('open');
+  /* ── Sidebar mobile ──────────────────────────────────────── */
+  const sidebar   = document.getElementById('sidebar');
+  const overlay   = document.getElementById('sidebar-overlay');
+  const toggleBtn = document.getElementById('sidebar-toggle');
+  const hamIcon   = document.getElementById('hamburger-icon');
+
+  const ICON_OPEN  = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>';
+  const ICON_CLOSE = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>';
+
+  function openSidebar() {
+    sidebar.classList.add('open');
+    overlay.classList.add('show');
+    if (hamIcon) hamIcon.innerHTML = ICON_CLOSE;
+    document.body.style.overflow = 'hidden'; // empêche le scroll derrière
+  }
+
+  function closeSidebar() {
+    sidebar.classList.remove('open');
+    overlay.classList.remove('show');
+    if (hamIcon) hamIcon.innerHTML = ICON_OPEN;
+    document.body.style.overflow = '';
+  }
+
+  toggleBtn?.addEventListener('click', () => {
+    sidebar.classList.contains('open') ? closeSidebar() : openSidebar();
   });
+
+  // Fermer en cliquant l'overlay
+  overlay?.addEventListener('click', closeSidebar);
+
+  // Fermer avec Escape
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') closeSidebar();
+  });
+
+  /* ── Auto-dismiss flash messages ──────────────────────────── */
   setTimeout(() => {
     document.querySelectorAll('.alert-dismissible').forEach(el => {
       el.style.transition = 'opacity 0.5s, transform 0.5s';
-      el.style.opacity = '0'; el.style.transform = 'translateY(-8px)';
+      el.style.opacity = '0';
+      el.style.transform = 'translateY(-8px)';
       setTimeout(() => el.remove(), 500);
     });
   }, 4000);
+
+  /* ── Wrapper automatique des tables pour scroll mobile ────── */
+  document.querySelectorAll('.modern-table').forEach(table => {
+    const parent = table.parentElement;
+    if (!parent.classList.contains('modern-table-scroll')) {
+      const wrapper = document.createElement('div');
+      wrapper.className = 'modern-table-scroll';
+      parent.insertBefore(wrapper, table);
+      wrapper.appendChild(table);
+    }
+  });
 </script>
 </body>
 </html>
