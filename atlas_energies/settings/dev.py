@@ -5,12 +5,12 @@ from .base import *  # noqa: F401, F403
 
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', '0.0.0.0']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', '0.0.0.0','atlas-energie.onrender.com']
 
 # Debug toolbar
 INSTALLED_APPS += ['debug_toolbar']  # noqa: F405
 MIDDLEWARE = ['debug_toolbar.middleware.DebugToolbarMiddleware'] + MIDDLEWARE  # noqa: F405
-INTERNAL_IPS = ['127.0.0.1']
+INTERNAL_IPS = ['127.0.0.1','atlas-energie.onrender.com']
 
 # Email → SMTP Gmail (les credentials viennent du .env)
 # Pour tester sans envoyer de vrais mails, commenter la ligne ci-dessous
