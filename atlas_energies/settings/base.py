@@ -13,7 +13,6 @@ env = environ.Env(
     DEBUG=(bool, False),
     ALLOWED_HOSTS=(list, [
         "atlas-energie.onrender.com"
-        
         ]),
     SITE_ID=(int, 1),
     TAUX_EUR_XOF=(float, 655.957),
