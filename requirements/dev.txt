@@ -10,3 +10,6 @@ django-debug-toolbar==4.4.6
 # Shell amélioré, commandes utilitaires (shell_plus, export_emails, etc.)
 # DANGER en prod : accès complet aux modèles via shell
 django-extensions==3.2.3
+
+
+
