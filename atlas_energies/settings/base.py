@@ -11,7 +11,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent.parent
 # ─── Environnement ───────────────────────────────────────────────────────────
 env = environ.Env(
     DEBUG=(bool, False),
-    ALLOWED_HOSTS=(list, []),
+    ALLOWED_HOSTS=(list, [
+        "atlas-energie.onrender.com"
+        
+        ]),
     SITE_ID=(int, 1),
     TAUX_EUR_XOF=(float, 655.957),
     TAUX_USD_XOF=(float, 605.00),
