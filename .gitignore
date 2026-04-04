@@ -31,6 +31,9 @@ ENV/
 .DS_Store
 Thumbs.db
 
+# Fichiers CSS lourds (servis via CDN)
+static/css/daisyui.min.css
+
 # Coverage
 htmlcov/
 .coverage
