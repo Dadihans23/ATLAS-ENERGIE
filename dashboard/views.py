@@ -38,7 +38,7 @@ def _dashboard_chef(request):
     )
     recentes_fg = (
         DepenseFraisGeneraux.objects
-        .select_related('created_by')
+        .select_related('centre_budgetaire', 'created_by')
         .order_by('-date_creation')[:5]
     )
     projets_alerte = [p for p in projets if p.est_en_depassement]
@@ -58,22 +58,28 @@ def _dashboard_chef(request):
 
 
 def _dashboard_agent(request):
-    mes_exploitation = (
+    projets = list(
+        Projet.objects.filter(is_active=True)
+        .select_related('created_by')
+        .order_by('-date_creation')
+    )
+    recentes_exploitation = (
         DepenseExploitation.objects
-        .filter(created_by=request.user)
-        .select_related('centre_budgetaire')
+        .select_related('centre_budgetaire', 'created_by')
         .order_by('-date_creation')[:10]
     )
-    mes_fg = (
+    recentes_fg = (
         DepenseFraisGeneraux.objects
-        .filter(created_by=request.user)
+        .select_related('centre_budgetaire', 'created_by')
         .order_by('-date_creation')[:10]
     )
     ctx = {
-        'mes_exploitation': mes_exploitation,
-        'mes_fg': mes_fg,
-        'nb_exploitation': DepenseExploitation.objects.filter(created_by=request.user).count(),
-        'nb_fg': DepenseFraisGeneraux.objects.filter(created_by=request.user).count(),
+        'projets': projets,
+        'nb_projets': len(projets),
+        'recentes_exploitation': recentes_exploitation,
+        'recentes_fg': recentes_fg,
+        'nb_exploitation': DepenseExploitation.objects.count(),
+        'nb_fg': DepenseFraisGeneraux.objects.count(),
     }
     return render(request, 'dashboard/agent.html', ctx)
 

@@ -1,104 +1,167 @@
 {% extends "base.html" %}
 {% load currency_tags %}
 
-{% block title %}Mon espace{% endblock %}
+{% block title %}Tableau de bord{% endblock %}
 {% block breadcrumb %}
   <span style="color:rgba(100,116,139,0.4)">/</span>
-  <span style="color:#276228; font-weight:600">Mon espace</span>
+  <span style="color:#276228; font-weight:600">Tableau de bord</span>
 {% endblock %}
-{% block page_title_mobile %}Mon espace{% endblock %}
+{% block page_title_mobile %}Tableau de bord{% endblock %}
 
 {% block content %}
 
 <!-- ── En-tête ─────────────────────────────────────────────── -->
-<div class="mb-8 animate-in">
+<div class="mb-6 animate-in">
   <h1 style="font-size:1.6rem; font-weight:800; color:#1a3d1b; line-height:1.2">
     Bonjour, {{ request.user.first_name }} 👋
   </h1>
   <p style="color:#64748b; font-size:0.85rem; margin-top:4px">
-    Espace de saisie — vos dépenses en un coup d'œil
+    Vue d'ensemble de tous les projets et dépenses de l'agence
   </p>
 </div>
 
 <!-- ── KPIs ───────────────────────────────────────────────── -->
-<div class="grid grid-cols-2 gap-5 max-w-lg mb-8 animate-in delay-1">
+<div class="grid grid-cols-3 gap-4 mb-8 animate-in delay-1 mobile-1col">
   <div class="kpi-card">
-    <div class="icon-badge icon-badge-blue mb-4">
+    <div class="icon-badge icon-badge-blue mb-3">
+      <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V7z"/>
+      </svg>
+    </div>
+    <p style="font-size:2.2rem; font-weight:900; color:#276228; line-height:1; letter-spacing:-0.02em">{{ nb_projets }}</p>
+    <p style="color:#64748b; font-size:0.72rem; font-weight:600; margin-top:6px; text-transform:uppercase; letter-spacing:0.05em">Projets actifs</p>
+  </div>
+
+  <div class="kpi-card">
+    <div class="icon-badge icon-badge-green mb-3">
       <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
               d="M9 14l6-6m-5.5.5h.01m4.99 5h.01M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2z"/>
       </svg>
     </div>
-    <p style="font-size:2.4rem; font-weight:900; color:#276228; line-height:1; letter-spacing:-0.02em">
-      {{ nb_exploitation }}
-    </p>
-    <p style="color:#64748b; font-size:0.72rem; font-weight:600; margin-top:6px; text-transform:uppercase; letter-spacing:0.05em">
-      Dépenses exploitation
-    </p>
+    <p style="font-size:2.2rem; font-weight:900; color:#276228; line-height:1; letter-spacing:-0.02em">{{ nb_exploitation }}</p>
+    <p style="color:#64748b; font-size:0.72rem; font-weight:600; margin-top:6px; text-transform:uppercase; letter-spacing:0.05em">Dépenses exploitation</p>
   </div>
 
   <div class="kpi-card">
-    <div class="icon-badge icon-badge-green mb-4">
+    <div class="icon-badge icon-badge-purple mb-3">
       <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
               d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
       </svg>
     </div>
-    <p style="font-size:2.4rem; font-weight:900; color:#276228; line-height:1; letter-spacing:-0.02em">
-      {{ nb_fg }}
-    </p>
-    <p style="color:#64748b; font-size:0.72rem; font-weight:600; margin-top:6px; text-transform:uppercase; letter-spacing:0.05em">
-      Frais généraux
-    </p>
+    <p style="font-size:2.2rem; font-weight:900; color:#276228; line-height:1; letter-spacing:-0.02em">{{ nb_fg }}</p>
+    <p style="color:#64748b; font-size:0.72rem; font-weight:600; margin-top:6px; text-transform:uppercase; letter-spacing:0.05em">Frais généraux</p>
   </div>
 </div>
 
 <!-- ── Actions rapides ────────────────────────────────────── -->
 <div class="mb-8 animate-in delay-2">
-  <h2 style="font-size:0.85rem; font-weight:700; color:#94a3b8; text-transform:uppercase; letter-spacing:0.08em; margin-bottom:14px">
+  <h2 style="font-size:0.75rem; font-weight:700; color:#94a3b8; text-transform:uppercase; letter-spacing:0.08em; margin-bottom:12px">
     Actions rapides
   </h2>
   <div class="flex gap-3 flex-wrap">
-    <a href="{% url 'depenses:exploitation_creer' %}" class="btn-glass-primary" style="padding:12px 22px">
+    <a href="{% url 'depenses:exploitation_creer' %}" class="btn-glass-primary" style="padding:11px 20px">
       <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M9 14l6-6m-5.5.5h.01m4.99 5h.01M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2z"/>
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
       </svg>
-      Nouvelle dépense exploitation
+      Dépense exploitation
     </a>
-    <a href="{% url 'depenses:fg_creer' %}" class="btn-glass-secondary" style="padding:12px 22px">
+    <a href="{% url 'depenses:fg_creer' %}" class="btn-glass-secondary" style="padding:11px 20px">
       <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
       </svg>
-      Nouveau frais général
+      Frais général
     </a>
   </div>
 </div>
 
-<!-- ── Mes saisies récentes ───────────────────────────────── -->
+<!-- ── Projets actifs ─────────────────────────────────────── -->
+{% if projets %}
+<div class="glass-card overflow-hidden mb-6 animate-in delay-2">
+  <div style="display:flex; align-items:center; justify-content:space-between; padding:14px 20px; border-bottom:1px solid rgba(200,230,201,0.3)">
+    <div style="display:flex; align-items:center; gap:10px">
+      <div class="icon-badge icon-badge-blue" style="width:32px; height:32px; border-radius:10px">
+        <svg class="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V7z"/>
+        </svg>
+      </div>
+      <span style="font-weight:700; font-size:0.85rem; color:#1a3d1b">Projets actifs</span>
+    </div>
+    <a href="{% url 'projets:liste' %}" style="color:#2d7a2f; font-size:0.75rem; font-weight:600; text-decoration:none">Voir tout →</a>
+  </div>
+  <div style="overflow-x:auto;">
+    <table class="modern-table" style="min-width:560px;">
+      <thead>
+        <tr>
+          <th>Projet</th>
+          <th style="text-align:right">Budget total</th>
+          <th style="text-align:right">Consommé</th>
+          <th>Avancement</th>
+          <th style="text-align:right">Restant</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for p in projets %}
+        <tr onclick="window.location='{% url 'projets:detail' p.pk %}'" style="cursor:pointer;">
+          <td>
+            <a href="{% url 'projets:detail' p.pk %}" style="font-weight:700; font-size:0.82rem; color:#1a3d1b; text-decoration:none;">
+              {{ p.nom }}
+            </a>
+          </td>
+          <td style="text-align:right; font-family:monospace; font-size:0.8rem; color:#475569; font-weight:600;">
+            {{ p.total_budget|xof }}
+          </td>
+          <td style="text-align:right; font-family:monospace; font-size:0.8rem; color:#276228; font-weight:700;">
+            {{ p.total_depense|xof }}
+          </td>
+          <td style="min-width:120px;">
+            <div style="display:flex; align-items:center; gap:8px;">
+              <div class="progress-modern" style="flex:1;">
+                <div class="progress-modern-fill {% if p.taux_consommation > 90 %}danger{% elif p.taux_consommation > 75 %}warning{% endif %}"
+                     style="width:min({{ p.taux_consommation }}%, 100%)"></div>
+              </div>
+              <span style="font-size:0.7rem; color:#94a3b8; white-space:nowrap; font-variant-numeric:tabular-nums;">
+                {{ p.taux_consommation|pct }}
+              </span>
+            </div>
+          </td>
+          <td style="text-align:right; font-family:monospace; font-size:0.8rem; font-weight:700;
+                     color:{% if p.budget_restant_global < 0 %}#dc2626{% else %}#059669{% endif %};">
+            {{ p.budget_restant_global|xof }}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endif %}
+
+<!-- ── Dernières dépenses ─────────────────────────────────── -->
 <div class="grid grid-cols-1 xl:grid-cols-2 gap-5 animate-in delay-3">
 
+  <!-- Exploitation -->
   <div class="glass-card overflow-hidden">
-    <div class="flex items-center justify-between px-5 py-4" style="border-bottom:1px solid rgba(200,230,201,0.3)">
-      <div class="flex items-center gap-3">
-        <div class="icon-badge icon-badge-blue" style="width:32px; height:32px; border-radius:10px">
+    <div style="display:flex; align-items:center; justify-content:space-between; padding:14px 20px; border-bottom:1px solid rgba(200,230,201,0.3);">
+      <div style="display:flex; align-items:center; gap:10px;">
+        <div class="icon-badge icon-badge-green" style="width:32px; height:32px; border-radius:10px">
           <svg class="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                   d="M9 14l6-6m-5.5.5h.01m4.99 5h.01M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2z"/>
           </svg>
         </div>
-        <span style="font-weight:700; font-size:0.82rem; color:#1a3d1b">Mes dépenses exploitation</span>
+        <span style="font-weight:700; font-size:0.82rem; color:#1a3d1b">Dépenses exploitation récentes</span>
       </div>
-      <a href="{% url 'depenses:exploitation_liste' %}"
-         style="color:#2d7a2f; font-size:0.75rem; font-weight:600; text-decoration:none">Voir tout →</a>
+      <a href="{% url 'depenses:exploitation_liste' %}" style="color:#2d7a2f; font-size:0.75rem; font-weight:600; text-decoration:none">Voir tout →</a>
     </div>
     <table class="modern-table">
       <thead>
-        <tr><th>N°</th><th>Projet</th><th style="text-align:right">Montant</th><th>Date</th></tr>
+        <tr><th>N°</th><th>Projet</th><th style="text-align:right">Montant</th><th>Par</th></tr>
       </thead>
       <tbody>
-        {% for d in mes_exploitation %}
+        {% for d in recentes_exploitation %}
         <tr>
           <td>
             <span style="font-family:monospace; font-size:0.72rem; font-weight:700; color:#276228;
@@ -106,18 +169,18 @@
               {{ d.numero_saisie }}
             </span>
           </td>
-          <td style="font-size:0.78rem; color:#334155; max-width:110px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap">
+          <td style="font-size:0.78rem; color:#334155; max-width:100px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap">
             {{ d.centre_budgetaire.nom }}
           </td>
-          <td style="text-align:right; font-weight:800; font-size:0.82rem; color:#276228">
+          <td style="text-align:right; font-weight:800; font-size:0.82rem; color:#276228; font-family:monospace;">
             {{ d.montant_xof|xof }}
           </td>
-          <td style="font-size:0.72rem; color:#94a3b8">{{ d.date_saisie|date:"d/m/Y" }}</td>
+          <td style="font-size:0.72rem; color:#94a3b8;">{{ d.created_by.get_short_name }}</td>
         </tr>
         {% empty %}
         <tr>
           <td colspan="4" style="text-align:center; padding:28px; color:#94a3b8; font-size:0.82rem">
-            Aucune saisie pour le moment
+            Aucune dépense pour le moment
           </td>
         </tr>
         {% endfor %}
@@ -125,43 +188,45 @@
     </table>
   </div>
 
+  <!-- Frais généraux -->
   <div class="glass-card overflow-hidden">
-    <div class="flex items-center justify-between px-5 py-4" style="border-bottom:1px solid rgba(200,230,201,0.3)">
-      <div class="flex items-center gap-3">
-        <div class="icon-badge icon-badge-green" style="width:32px; height:32px; border-radius:10px">
+    <div style="display:flex; align-items:center; justify-content:space-between; padding:14px 20px; border-bottom:1px solid rgba(200,230,201,0.3);">
+      <div style="display:flex; align-items:center; gap:10px;">
+        <div class="icon-badge icon-badge-purple" style="width:32px; height:32px; border-radius:10px">
           <svg class="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                   d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
           </svg>
         </div>
-        <span style="font-weight:700; font-size:0.82rem; color:#1a3d1b">Mes frais généraux</span>
+        <span style="font-weight:700; font-size:0.82rem; color:#1a3d1b">Frais généraux récents</span>
       </div>
-      <a href="{% url 'depenses:fg_liste' %}"
-         style="color:#2d7a2f; font-size:0.75rem; font-weight:600; text-decoration:none">Voir tout →</a>
+      <a href="{% url 'depenses:fg_liste' %}" style="color:#2d7a2f; font-size:0.75rem; font-weight:600; text-decoration:none">Voir tout →</a>
     </div>
     <table class="modern-table">
       <thead>
-        <tr><th>N°</th><th>Ligne</th><th style="text-align:right">Montant</th><th>Date</th></tr>
+        <tr><th>N°</th><th>Projet</th><th style="text-align:right">Montant</th><th>Par</th></tr>
       </thead>
       <tbody>
-        {% for d in mes_fg %}
+        {% for d in recentes_fg %}
         <tr>
           <td>
-            <span style="font-family:monospace; font-size:0.72rem; font-weight:700; color:#276228;
-                         background:rgba(200,230,201,0.4); padding:2px 8px; border-radius:6px">
+            <span style="font-family:monospace; font-size:0.72rem; font-weight:700; color:#8b5cf6;
+                         background:rgba(237,233,254,0.5); padding:2px 8px; border-radius:6px">
               {{ d.numero_saisie }}
             </span>
           </td>
-          <td style="font-size:0.78rem; color:#334155">{{ d.get_ligne_budgetaire_display }}</td>
-          <td style="text-align:right; font-weight:800; font-size:0.82rem; color:#276228">
+          <td style="font-size:0.78rem; color:#334155; max-width:100px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap">
+            {{ d.centre_budgetaire.nom }}
+          </td>
+          <td style="text-align:right; font-weight:800; font-size:0.82rem; color:#8b5cf6; font-family:monospace;">
             {{ d.montant_xof|xof }}
           </td>
-          <td style="font-size:0.72rem; color:#94a3b8">{{ d.date_saisie|date:"d/m/Y" }}</td>
+          <td style="font-size:0.72rem; color:#94a3b8;">{{ d.created_by.get_short_name }}</td>
         </tr>
         {% empty %}
         <tr>
           <td colspan="4" style="text-align:center; padding:28px; color:#94a3b8; font-size:0.82rem">
-            Aucune saisie pour le moment
+            Aucun frais pour le moment
           </td>
         </tr>
         {% endfor %}

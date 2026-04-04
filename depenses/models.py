@@ -308,6 +308,13 @@ class DepenseFraisGeneraux(DepenseBase):
         RESERVATION = 'reservation', _("Réservation")
 
     # ── Champs spécifiques ────────────────────────────────────────────────────
+    centre_budgetaire = models.ForeignKey(
+        Projet,
+        on_delete=models.PROTECT,
+        related_name='depenses_frais_generaux',
+        verbose_name=_("Projet"),
+        db_index=True,
+    )
     ligne_budgetaire = models.CharField(
         max_length=30,
         choices=LigneBudgetaire.choices,

@@ -20,11 +20,11 @@ env = environ.Env(
     MAX_UPLOAD_SIZE_MB=(int, 10),
     EMAIL_BACKEND=(str, 'django.core.mail.backends.console.EmailBackend'),
     EMAIL_HOST=(str, 'smtp.gmail.com'),
-    EMAIL_PORT=(int, 465),
+    EMAIL_PORT=(int, 587),
     EMAIL_HOST_USER=(str, ''),
     EMAIL_HOST_PASSWORD=(str, ''),
-    EMAIL_USE_SSL=(bool, True),
-    EMAIL_USE_TLS=(bool, False),
+    EMAIL_USE_SSL=(bool, False),
+    EMAIL_USE_TLS=(bool, True),
     DEFAULT_FROM_EMAIL=(str, 'no-reply@atlas-energies.ci'),
 )
 environ.Env.read_env(BASE_DIR / '.env')
@@ -170,9 +170,13 @@ SESSION_COOKIE_AGE = 28800              # 8 heures (journée de travail)
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True  # Expire à fermeture du navigateur
 SESSION_SAVE_EVERY_REQUEST = True       # Renouvelle à chaque requête active
 
-# ─── Cookies sécurisés (LOW-02) ───────────────────────────────────────────────
-SESSION_COOKIE_SAMESITE = 'Strict'
-CSRF_COOKIE_SAMESITE = 'Strict'
+# ─── Cookies sécurisés ────────────────────────────────────────────────────────
+# Lax (pas Strict) : SameSite=Strict bloque le cookie sur les redirects de
+# navigation externe (ex: clic depuis un client email → reset password),
+# ce qui casse le flow allauth reset_password_from_key.
+# SameSite=Lax protège quand même contre les CSRF cross-site POST.
+SESSION_COOKIE_SAMESITE = 'Lax'
+CSRF_COOKIE_SAMESITE = 'Lax'
 
 # ─── Fichiers statiques ───────────────────────────────────────────────────────
 STATIC_URL = env('STATIC_URL', default='/static/')

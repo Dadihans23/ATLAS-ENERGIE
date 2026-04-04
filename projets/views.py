@@ -2,6 +2,7 @@
 Vues Projet – réservées au Chef d'Agence (CRUD complet).
 """
 from django.contrib import messages
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import redirect
 from django.urls import reverse, reverse_lazy
 from django.views.generic import CreateView, DeleteView, DetailView, ListView, UpdateView
@@ -11,7 +12,7 @@ from .forms import ProjetForm
 from .models import Projet
 
 
-class ProjetListView(ChefRequiredMixin, ListView):
+class ProjetListView(LoginRequiredMixin, ListView):
     model = Projet
     template_name = 'projets/liste.html'
     context_object_name = 'projets'
@@ -30,7 +31,7 @@ class ProjetListView(ChefRequiredMixin, ListView):
         return qs
 
 
-class ProjetDetailView(ChefRequiredMixin, DetailView):
+class ProjetDetailView(LoginRequiredMixin, DetailView):
     model = Projet
     template_name = 'projets/detail.html'
     context_object_name = 'projet'
@@ -40,6 +41,11 @@ class ProjetDetailView(ChefRequiredMixin, DetailView):
         projet = self.object
         ctx['depenses'] = (
             projet.depenses_exploitation
+            .select_related('created_by')
+            .order_by('-date_saisie')[:50]
+        )
+        ctx['depenses_fg'] = (
+            projet.depenses_frais_generaux
             .select_related('created_by')
             .order_by('-date_saisie')[:50]
         )

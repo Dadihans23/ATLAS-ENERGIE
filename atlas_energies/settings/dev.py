@@ -7,19 +7,10 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['localhost', '127.0.0.1', '0.0.0.0','atlas-energie.onrender.com']
 
-# Debug toolbar
-INSTALLED_APPS += ['debug_toolbar']  # noqa: F405
-MIDDLEWARE = ['debug_toolbar.middleware.DebugToolbarMiddleware'] + MIDDLEWARE  # noqa: F405
-INTERNAL_IPS = ['127.0.0.1','atlas-energie.onrender.com']
-
-# Email → SMTP Gmail (les credentials viennent du .env)
-# Pour tester sans envoyer de vrais mails, commenter la ligne ci-dessous
-# et décommenter : EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-
 # Vérification email désactivée en dev
 ACCOUNT_EMAIL_VERIFICATION = 'none'
 
-# Logs SQL en dev
+# Logs : uniquement les erreurs (plus de spam SQL dans le terminal)
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
@@ -29,7 +20,7 @@ LOGGING = {
     'loggers': {
         'django.db.backends': {
             'handlers': ['console'],
-            'level': 'DEBUG',
+            'level': 'ERROR',   # était DEBUG → affichait chaque requête SQL
         },
     },
 }

@@ -46,12 +46,13 @@ class DepenseFraisGenerauxForm(forms.ModelForm):
     class Meta:
         model = DepenseFraisGeneraux
         fields = [
-            'date_saisie', 'ligne_budgetaire', 'nature_depense',
+            'date_saisie', 'centre_budgetaire', 'ligne_budgetaire', 'nature_depense',
             'libelle', 'devise', 'montant',
             'fournisseur', 'numero_piece', 'piece_jointe', 'commentaire',
         ]
         labels = {
             'date_saisie': 'Date de saisie',
+            'centre_budgetaire': 'Projet',
             'ligne_budgetaire': 'Ligne budgétaire',
             'nature_depense': 'Nature de la dépense',
             'libelle': 'Libellé',
@@ -67,3 +68,7 @@ class DepenseFraisGenerauxForm(forms.ModelForm):
             'libelle': forms.Textarea(attrs={'rows': 2}),
             'commentaire': forms.Textarea(attrs={'rows': 2}),
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['centre_budgetaire'].queryset = Projet.objects.filter(is_active=True)

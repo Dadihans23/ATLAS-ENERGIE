@@ -31,9 +31,6 @@ class DepenseExploitationListView(LoginRequiredMixin, ListView):
             'centre_budgetaire', 'created_by'
         ).order_by('-date_saisie', '-date_creation')
 
-        if not self.request.user.is_chef:
-            qs = qs.filter(created_by=self.request.user)
-
         q = self.request.GET.get('q', '').strip()
         if q:
             qs = qs.filter(libelle__icontains=q) | qs.filter(numero_saisie__icontains=q)
@@ -125,15 +122,19 @@ class DepenseFraisGenerauxListView(LoginRequiredMixin, ListView):
 
     def get_queryset(self):
         qs = DepenseFraisGeneraux.objects.select_related(
-            'created_by'
+            'centre_budgetaire', 'created_by'
         ).order_by('-date_saisie', '-date_creation')
-
-        if not self.request.user.is_chef:
-            qs = qs.filter(created_by=self.request.user)
 
         q = self.request.GET.get('q', '').strip()
         if q:
             qs = qs.filter(libelle__icontains=q) | qs.filter(numero_saisie__icontains=q)
+
+        projet_id = self.request.GET.get('projet', '')
+        if projet_id:
+            try:
+                qs = qs.filter(centre_budgetaire_id=int(projet_id))
+            except (ValueError, TypeError):
+                pass
 
         ligne = self.request.GET.get('ligne', '')
         if ligne:
