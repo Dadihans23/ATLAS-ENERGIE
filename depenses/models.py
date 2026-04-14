@@ -80,6 +80,16 @@ def _next_numero(prefix: str, model_class, year: int) -> str:
     return f"{prefix}-{year}-{seq:05d}"
 
 
+# ─── Statut workflow ─────────────────────────────────────────────────────────
+
+class StatutDepense(models.TextChoices):
+    SOUMIS        = 'soumis',        _("Soumis")
+    APPROUVE_N1   = 'approuve_n1',   _("Approuvé (Directeur)")
+    APPROUVE_DG   = 'approuve_dg',   _("Approuvé (DG)")
+    REJETE        = 'rejete',        _("Rejeté")
+    DECAISSE      = 'decaisse',      _("Décaissé")
+
+
 # ─── Modèle abstrait commun ───────────────────────────────────────────────────
 
 class DepenseBase(models.Model):
@@ -158,6 +168,56 @@ class DepenseBase(models.Model):
     date_modification = models.DateTimeField(
         auto_now=True,
         verbose_name=_("Modifié le"),
+    )
+
+    # ── Workflow validation ───────────────────────────────────────────────────
+    statut = models.CharField(
+        max_length=15,
+        choices=StatutDepense.choices,
+        default=StatutDepense.SOUMIS,
+        verbose_name=_("Statut"),
+        db_index=True,
+    )
+    valide_par_n1 = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True, blank=True,
+        related_name='+',
+        verbose_name=_("Validé par (Directeur)"),
+    )
+    date_validation_n1 = models.DateTimeField(
+        null=True, blank=True,
+        verbose_name=_("Date validation directeur"),
+    )
+    motif_rejet_n1 = models.TextField(
+        blank=True,
+        verbose_name=_("Motif rejet directeur"),
+    )
+    valide_par_dg = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True, blank=True,
+        related_name='+',
+        verbose_name=_("Validé par (DG)"),
+    )
+    date_validation_dg = models.DateTimeField(
+        null=True, blank=True,
+        verbose_name=_("Date validation DG"),
+    )
+    motif_rejet_dg = models.TextField(
+        blank=True,
+        verbose_name=_("Motif rejet DG"),
+    )
+    decaisse_par = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True, blank=True,
+        related_name='+',
+        verbose_name=_("Décaissé par"),
+    )
+    date_decaissement = models.DateTimeField(
+        null=True, blank=True,
+        verbose_name=_("Date de décaissement"),
     )
 
     class Meta:

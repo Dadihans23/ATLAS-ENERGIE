@@ -1,0 +1,141 @@
+{% extends "base.html" %}
+{% load currency_tags %}
+
+{% block title %}Décaissements{% endblock %}
+{% block breadcrumb %}
+  <span style="color:rgba(100,116,139,0.4)">/</span>
+  <span style="color:#276228; font-weight:600">Décaissements</span>
+{% endblock %}
+
+{% block content %}
+<div class="flex items-center justify-between mb-8 animate-in">
+  <div>
+    <h1 style="font-size:1.5rem; font-weight:800; color:#1a3d1b">Décaissements</h1>
+    <p style="color:#64748b; font-size:0.85rem; margin-top:4px">Dépenses approuvées par le DG — à exécuter</p>
+  </div>
+</div>
+
+<!-- Dépenses d'exploitation à décaisser -->
+<div class="glass-card overflow-hidden mb-6 animate-in delay-1">
+  <div style="padding:16px 20px; border-bottom:1px solid rgba(200,230,201,0.3); display:flex; align-items:center; gap:10px">
+    <div class="icon-badge icon-badge-blue" style="width:32px; height:32px; border-radius:10px">
+      <svg class="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 14l6-6m-5.5.5h.01m4.99 5h.01M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2z"/>
+      </svg>
+    </div>
+    <h2 style="font-weight:700; font-size:0.9rem; color:#1a3d1b">
+      Dépenses d'exploitation
+      <span style="font-weight:400; color:#94a3b8; font-size:0.78rem">({{ depenses_exp.count }})</span>
+    </h2>
+  </div>
+  <div style="overflow-x:auto">
+    <table class="modern-table">
+      <thead>
+        <tr>
+          <th>N°</th><th>Date</th><th>Projet</th><th>Ligne</th>
+          <th>Libellé</th><th style="text-align:right">Montant XOF</th>
+          <th>Par</th><th>Approuvé DG le</th><th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for d in depenses_exp %}
+        <tr>
+          <td><span style="font-family:monospace; font-size:0.72rem; font-weight:700; color:#276228; background:rgba(200,230,201,0.3); padding:2px 8px; border-radius:6px">{{ d.numero_saisie }}</span></td>
+          <td style="font-size:0.75rem; color:#64748b">{{ d.date_saisie|date:"d/m/Y" }}</td>
+          <td style="font-size:0.75rem; color:#334155; font-weight:600">{{ d.centre_budgetaire.nom|truncatechars:25 }}</td>
+          <td><span class="status-info">{{ d.get_ligne_budgetaire_display }}</span></td>
+          <td style="font-size:0.78rem; color:#334155; max-width:150px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap">{{ d.libelle }}</td>
+          <td style="text-align:right; font-family:monospace; font-weight:800; color:#276228">{{ d.montant_xof|xof }}</td>
+          <td style="font-size:0.72rem; color:#94a3b8">{{ d.created_by.get_short_name }}</td>
+          <td style="font-size:0.72rem; color:#64748b">{{ d.date_validation_dg|date:"d/m/Y" }}</td>
+          <td>
+            <div style="display:flex; gap:6px; align-items:center; justify-content:flex-end">
+              <a href="{% url 'depenses:exploitation_detail' d.pk %}" title="Voir détails"
+                 style="width:28px; height:28px; border-radius:8px; background:rgba(224,242,254,0.5); border:1px solid rgba(56,189,248,0.25); display:flex; align-items:center; justify-content:center; color:#0369a1; text-decoration:none; flex-shrink:0"
+                 onmouseover="this.style.background='rgba(186,230,253,0.5)'" onmouseout="this.style.background='rgba(224,242,254,0.5)'">
+                <svg style="width:14px; height:14px" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+              </a>
+              <form method="post" action="{% url 'depenses:decaisser' 'exploitation' d.pk %}" style="display:inline">
+                {% csrf_token %}
+                <button type="submit"
+                  style="background:linear-gradient(135deg,#34d399,#059669); color:#fff; border:none; border-radius:8px; padding:6px 14px; font-size:0.75rem; font-weight:700; cursor:pointer; white-space:nowrap">
+                  ✓ Décaisser
+                </button>
+              </form>
+            </div>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="9" style="text-align:center; padding:32px; color:#94a3b8; font-size:0.85rem">
+            Aucune dépense d'exploitation en attente de décaissement.
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Frais généraux à décaisser -->
+<div class="glass-card overflow-hidden animate-in delay-2">
+  <div style="padding:16px 20px; border-bottom:1px solid rgba(200,230,201,0.3); display:flex; align-items:center; gap:10px">
+    <div class="icon-badge icon-badge-purple" style="width:32px; height:32px; border-radius:10px">
+      <svg class="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
+      </svg>
+    </div>
+    <h2 style="font-weight:700; font-size:0.9rem; color:#1a3d1b">
+      Frais généraux
+      <span style="font-weight:400; color:#94a3b8; font-size:0.78rem">({{ depenses_fg.count }})</span>
+    </h2>
+  </div>
+  <div style="overflow-x:auto">
+    <table class="modern-table">
+      <thead>
+        <tr>
+          <th>N°</th><th>Date</th><th>Projet</th><th>Ligne</th>
+          <th>Libellé</th><th style="text-align:right">Montant XOF</th>
+          <th>Par</th><th>Approuvé DG le</th><th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for d in depenses_fg %}
+        <tr>
+          <td><span style="font-family:monospace; font-size:0.72rem; font-weight:700; color:#8b5cf6; background:rgba(237,233,254,0.5); padding:2px 8px; border-radius:6px">{{ d.numero_saisie }}</span></td>
+          <td style="font-size:0.75rem; color:#64748b">{{ d.date_saisie|date:"d/m/Y" }}</td>
+          <td style="font-size:0.75rem; color:#334155; font-weight:600">{{ d.centre_budgetaire.nom|truncatechars:25 }}</td>
+          <td><span class="status-info">{{ d.get_ligne_budgetaire_display }}</span></td>
+          <td style="font-size:0.78rem; color:#334155; max-width:150px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap">{{ d.libelle }}</td>
+          <td style="text-align:right; font-family:monospace; font-weight:800; color:#8b5cf6">{{ d.montant_xof|xof }}</td>
+          <td style="font-size:0.72rem; color:#94a3b8">{{ d.created_by.get_short_name }}</td>
+          <td style="font-size:0.72rem; color:#64748b">{{ d.date_validation_dg|date:"d/m/Y" }}</td>
+          <td>
+            <div style="display:flex; gap:6px; align-items:center; justify-content:flex-end">
+              <a href="{% url 'depenses:fg_detail' d.pk %}" title="Voir détails"
+                 style="width:28px; height:28px; border-radius:8px; background:rgba(237,233,254,0.5); border:1px solid rgba(139,92,246,0.25); display:flex; align-items:center; justify-content:center; color:#7c3aed; text-decoration:none; flex-shrink:0"
+                 onmouseover="this.style.background='rgba(196,181,253,0.3)'" onmouseout="this.style.background='rgba(237,233,254,0.5)'">
+                <svg style="width:14px; height:14px" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+              </a>
+              <form method="post" action="{% url 'depenses:decaisser' 'fg' d.pk %}" style="display:inline">
+                {% csrf_token %}
+                <button type="submit"
+                  style="background:linear-gradient(135deg,#c084fc,#8b5cf6); color:#fff; border:none; border-radius:8px; padding:6px 14px; font-size:0.75rem; font-weight:700; cursor:pointer; white-space:nowrap">
+                  ✓ Décaisser
+                </button>
+              </form>
+            </div>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="9" style="text-align:center; padding:32px; color:#94a3b8; font-size:0.85rem">
+            Aucun frais général en attente de décaissement.
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

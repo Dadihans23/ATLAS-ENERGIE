@@ -1,0 +1,339 @@
+{% extends "base.html" %}
+{% load currency_tags %}
+
+{% block title %}Suivi complet{% endblock %}
+{% block breadcrumb %}
+  <span style="color:rgba(100,116,139,0.4)">/</span>
+  <span style="color:#276228; font-weight:600">Suivi complet</span>
+{% endblock %}
+
+{% block content %}
+
+<div class="flex items-center justify-between mb-8 animate-in flex-wrap gap-3">
+  <div>
+    <h1 style="font-size:1.6rem; font-weight:800; color:#1a3d1b">Suivi complet</h1>
+    <p style="color:#64748b; font-size:0.85rem; margin-top:4px">Vision globale du circuit de validation — toutes les étapes</p>
+  </div>
+</div>
+
+<!-- KPI rapides -->
+<div style="display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin-bottom:28px" class="animate-in delay-1">
+  <a href="?tab=approuves_n1" style="text-decoration:none">
+    <div class="kpi-card" style="{% if tab == 'approuves_n1' %}border-color:rgba(251,191,36,0.5); background:rgba(255,251,235,0.7){% endif %}">
+      <div style="display:flex; align-items:center; gap:10px; margin-bottom:8px">
+        <div class="icon-badge" style="width:32px; height:32px; border-radius:10px; background:linear-gradient(135deg,#fbbf24,#f59e0b)">
+          <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+        </div>
+        <span style="font-size:0.72rem; font-weight:600; color:#64748b; text-transform:uppercase; letter-spacing:0.05em">En attente DG</span>
+      </div>
+      <p style="font-size:1.8rem; font-weight:900; color:#d97706">{{ nb_n1 }}</p>
+      <p style="font-size:0.72rem; color:#94a3b8; margin-top:4px">approuvés N1, à valider DG</p>
+    </div>
+  </a>
+  <a href="?tab=approuves_dg" style="text-decoration:none">
+    <div class="kpi-card" style="{% if tab == 'approuves_dg' %}border-color:rgba(45,122,47,0.4); background:rgba(232,245,233,0.7){% endif %}">
+      <div style="display:flex; align-items:center; gap:10px; margin-bottom:8px">
+        <div class="icon-badge icon-badge-green" style="width:32px; height:32px; border-radius:10px">
+          <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+        </div>
+        <span style="font-size:0.72rem; font-weight:600; color:#64748b; text-transform:uppercase; letter-spacing:0.05em">Approbations DG</span>
+      </div>
+      <p style="font-size:1.8rem; font-weight:900; color:#276228">{{ nb_dg }}</p>
+      <p style="font-size:0.72rem; color:#94a3b8; margin-top:4px">approuvés par le DG</p>
+    </div>
+  </a>
+  <a href="?tab=decaisses" style="text-decoration:none">
+    <div class="kpi-card" style="{% if tab == 'decaisses' %}border-color:rgba(139,92,246,0.4); background:rgba(237,233,254,0.7){% endif %}">
+      <div style="display:flex; align-items:center; gap:10px; margin-bottom:8px">
+        <div class="icon-badge icon-badge-purple" style="width:32px; height:32px; border-radius:10px">
+          <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2z"/>
+          </svg>
+        </div>
+        <span style="font-size:0.72rem; font-weight:600; color:#64748b; text-transform:uppercase; letter-spacing:0.05em">Décaissés</span>
+      </div>
+      <p style="font-size:1.8rem; font-weight:900; color:#8b5cf6">{{ nb_decaisses }}</p>
+      <p style="font-size:0.72rem; color:#94a3b8; margin-top:4px">décaissements effectués</p>
+    </div>
+  </a>
+</div>
+
+<!-- Onglets -->
+<div style="display:flex; gap:4px; margin-bottom:20px; background:rgba(255,255,255,0.6); border:1px solid rgba(200,230,201,0.4); border-radius:14px; padding:5px; backdrop-filter:blur(8px); width:fit-content" class="animate-in delay-1">
+  <a href="?tab=approuves_n1"
+     style="padding:8px 20px; border-radius:10px; font-size:0.82rem; font-weight:{% if tab == 'approuves_n1' %}700{% else %}500{% endif %}; text-decoration:none; color:{% if tab == 'approuves_n1' %}#1a3d1b{% else %}#64748b{% endif %}; background:{% if tab == 'approuves_n1' %}rgba(232,245,233,0.9){% else %}transparent{% endif %}; transition:all 0.2s; white-space:nowrap">
+    En attente DG
+    {% if nb_n1 %}<span style="background:rgba(251,191,36,0.25); color:#d97706; border-radius:999px; padding:1px 7px; font-size:0.7rem; margin-left:6px; font-weight:700">{{ nb_n1 }}</span>{% endif %}
+  </a>
+  <a href="?tab=approuves_dg"
+     style="padding:8px 20px; border-radius:10px; font-size:0.82rem; font-weight:{% if tab == 'approuves_dg' %}700{% else %}500{% endif %}; text-decoration:none; color:{% if tab == 'approuves_dg' %}#1a3d1b{% else %}#64748b{% endif %}; background:{% if tab == 'approuves_dg' %}rgba(232,245,233,0.9){% else %}transparent{% endif %}; transition:all 0.2s; white-space:nowrap">
+    Approbations DG
+    <span style="background:rgba(45,122,47,0.12); color:#276228; border-radius:999px; padding:1px 7px; font-size:0.7rem; margin-left:6px; font-weight:700">{{ nb_dg }}</span>
+  </a>
+  <a href="?tab=decaisses"
+     style="padding:8px 20px; border-radius:10px; font-size:0.82rem; font-weight:{% if tab == 'decaisses' %}700{% else %}500{% endif %}; text-decoration:none; color:{% if tab == 'decaisses' %}#1a3d1b{% else %}#64748b{% endif %}; background:{% if tab == 'decaisses' %}rgba(232,245,233,0.9){% else %}transparent{% endif %}; transition:all 0.2s; white-space:nowrap">
+    Décaissements
+    <span style="background:rgba(139,92,246,0.12); color:#8b5cf6; border-radius:999px; padding:1px 7px; font-size:0.7rem; margin-left:6px; font-weight:700">{{ nb_decaisses }}</span>
+  </a>
+</div>
+
+{% if tab == 'approuves_n1' %}
+<!-- ─── Onglet : En attente DG ─────────────────────────────────────── -->
+
+<div class="glass-card overflow-hidden mb-6 animate-in delay-2">
+  <div style="padding:14px 20px; border-bottom:1px solid rgba(200,230,201,0.3); display:flex; align-items:center; gap:10px">
+    <div class="icon-badge icon-badge-green" style="width:28px; height:28px; border-radius:9px; background:linear-gradient(135deg,#38bdf8,#0ea5e9)">
+      <svg class="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 14l6-6"/>
+      </svg>
+    </div>
+    <h2 style="font-weight:700; font-size:0.88rem; color:#1a3d1b">Exploitation — approuvées DT, en attente DG <span style="color:#94a3b8; font-weight:400">({{ approuves_n1_exp.count }})</span></h2>
+  </div>
+  <div style="overflow-x:auto">
+    <table class="modern-table">
+      <thead><tr>
+        <th>N°</th><th>Date</th><th>Projet</th><th>Ligne</th><th>Libellé</th>
+        <th style="text-align:right">Montant XOF</th><th>Validé DT par</th><th>Le</th><th>Actions</th>
+      </tr></thead>
+      <tbody>
+        {% for d in approuves_n1_exp %}
+        <tr>
+          <td><span style="font-family:monospace; font-size:0.72rem; font-weight:700; color:#276228; background:rgba(200,230,201,0.3); padding:2px 8px; border-radius:6px">{{ d.numero_saisie }}</span></td>
+          <td style="font-size:0.75rem; color:#64748b">{{ d.date_saisie|date:"d/m/Y" }}</td>
+          <td style="font-size:0.75rem; font-weight:600; color:#334155">{{ d.centre_budgetaire.nom|truncatechars:20 }}</td>
+          <td><span class="status-info" style="font-size:0.68rem">{{ d.get_ligne_budgetaire_display }}</span></td>
+          <td style="font-size:0.78rem; color:#334155; max-width:140px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap">{{ d.libelle }}</td>
+          <td style="text-align:right; font-family:monospace; font-weight:800; color:#276228">{{ d.montant_xof|xof }}</td>
+          <td style="font-size:0.72rem; color:#64748b">{{ d.valide_par_n1.get_short_name|default:"—" }}</td>
+          <td style="font-size:0.72rem; color:#64748b">{{ d.date_validation_n1|date:"d/m/Y" }}</td>
+          <td>
+            <div style="display:flex; gap:5px; align-items:center">
+              <a href="{% url 'depenses:exploitation_detail' d.pk %}" title="Voir"
+                 style="width:26px; height:26px; border-radius:8px; background:rgba(224,242,254,0.5); border:1px solid rgba(56,189,248,0.25); display:flex; align-items:center; justify-content:center; color:#0369a1; text-decoration:none"
+                 onmouseover="this.style.background='rgba(186,230,253,0.5)'" onmouseout="this.style.background='rgba(224,242,254,0.5)'">
+                <svg style="width:13px; height:13px" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+              </a>
+              <form method="post" action="{% url 'depenses:approuver_dg' 'exploitation' d.pk %}">{% csrf_token %}
+                <button type="submit" style="background:linear-gradient(135deg,#34d399,#059669); color:#fff; border:none; border-radius:7px; padding:4px 10px; font-size:0.68rem; font-weight:700; cursor:pointer" title="Approuver DG">✓ DG</button>
+              </form>
+              <a href="{% url 'depenses:rejeter_dg' 'exploitation' d.pk %}" style="background:rgba(254,226,226,0.7); color:#dc2626; border:1px solid rgba(248,113,113,0.3); border-radius:7px; padding:4px 10px; font-size:0.68rem; font-weight:700; text-decoration:none" title="Rejeter">✕</a>
+            </div>
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="9" style="text-align:center; padding:32px; color:#94a3b8; font-size:0.85rem">Aucune dépense d'exploitation en attente d'approbation DG.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="glass-card overflow-hidden animate-in delay-2">
+  <div style="padding:14px 20px; border-bottom:1px solid rgba(200,230,201,0.3); display:flex; align-items:center; gap:10px">
+    <div class="icon-badge icon-badge-purple" style="width:28px; height:28px; border-radius:9px">
+      <svg class="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1"/>
+      </svg>
+    </div>
+    <h2 style="font-weight:700; font-size:0.88rem; color:#1a3d1b">Frais généraux — approuvés DF, en attente DG <span style="color:#94a3b8; font-weight:400">({{ approuves_n1_fg.count }})</span></h2>
+  </div>
+  <div style="overflow-x:auto">
+    <table class="modern-table">
+      <thead><tr>
+        <th>N°</th><th>Date</th><th>Projet</th><th>Ligne</th><th>Libellé</th>
+        <th style="text-align:right">Montant XOF</th><th>Validé DF par</th><th>Le</th><th>Actions</th>
+      </tr></thead>
+      <tbody>
+        {% for d in approuves_n1_fg %}
+        <tr>
+          <td><span style="font-family:monospace; font-size:0.72rem; font-weight:700; color:#8b5cf6; background:rgba(237,233,254,0.5); padding:2px 8px; border-radius:6px">{{ d.numero_saisie }}</span></td>
+          <td style="font-size:0.75rem; color:#64748b">{{ d.date_saisie|date:"d/m/Y" }}</td>
+          <td style="font-size:0.75rem; font-weight:600; color:#334155">{{ d.centre_budgetaire.nom|truncatechars:20 }}</td>
+          <td style="font-size:0.72rem; color:#334155">{{ d.get_ligne_budgetaire_display|truncatechars:18 }}</td>
+          <td style="font-size:0.78rem; color:#334155; max-width:140px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap">{{ d.libelle }}</td>
+          <td style="text-align:right; font-family:monospace; font-weight:800; color:#8b5cf6">{{ d.montant_xof|xof }}</td>
+          <td style="font-size:0.72rem; color:#64748b">{{ d.valide_par_n1.get_short_name|default:"—" }}</td>
+          <td style="font-size:0.72rem; color:#64748b">{{ d.date_validation_n1|date:"d/m/Y" }}</td>
+          <td>
+            <div style="display:flex; gap:5px; align-items:center">
+              <a href="{% url 'depenses:fg_detail' d.pk %}" title="Voir"
+                 style="width:26px; height:26px; border-radius:8px; background:rgba(237,233,254,0.5); border:1px solid rgba(139,92,246,0.25); display:flex; align-items:center; justify-content:center; color:#7c3aed; text-decoration:none"
+                 onmouseover="this.style.background='rgba(196,181,253,0.3)'" onmouseout="this.style.background='rgba(237,233,254,0.5)'">
+                <svg style="width:13px; height:13px" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+              </a>
+              <form method="post" action="{% url 'depenses:approuver_dg' 'fg' d.pk %}">{% csrf_token %}
+                <button type="submit" style="background:linear-gradient(135deg,#34d399,#059669); color:#fff; border:none; border-radius:7px; padding:4px 10px; font-size:0.68rem; font-weight:700; cursor:pointer" title="Approuver DG">✓ DG</button>
+              </form>
+              <a href="{% url 'depenses:rejeter_dg' 'fg' d.pk %}" style="background:rgba(254,226,226,0.7); color:#dc2626; border:1px solid rgba(248,113,113,0.3); border-radius:7px; padding:4px 10px; font-size:0.68rem; font-weight:700; text-decoration:none" title="Rejeter">✕</a>
+            </div>
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="9" style="text-align:center; padding:32px; color:#94a3b8; font-size:0.85rem">Aucun frais général en attente d'approbation DG.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% elif tab == 'approuves_dg' %}
+<!-- ─── Onglet : Approbations DG ──────────────────────────────────── -->
+
+<div class="glass-card overflow-hidden mb-6 animate-in delay-2">
+  <div style="padding:14px 20px; border-bottom:1px solid rgba(200,230,201,0.3)">
+    <h2 style="font-weight:700; font-size:0.88rem; color:#1a3d1b">Exploitation approuvées DG <span style="color:#94a3b8; font-weight:400">({{ approuves_dg_exp.count }})</span></h2>
+  </div>
+  <div style="overflow-x:auto">
+    <table class="modern-table">
+      <thead><tr>
+        <th>N°</th><th>Date</th><th>Projet</th><th>Libellé</th>
+        <th style="text-align:right">Montant XOF</th><th>Approuvé DG par</th><th>Le</th><th>Statut</th><th></th>
+      </tr></thead>
+      <tbody>
+        {% for d in approuves_dg_exp %}
+        <tr>
+          <td><span style="font-family:monospace; font-size:0.72rem; font-weight:700; color:#276228; background:rgba(200,230,201,0.3); padding:2px 8px; border-radius:6px">{{ d.numero_saisie }}</span></td>
+          <td style="font-size:0.75rem; color:#64748b">{{ d.date_saisie|date:"d/m/Y" }}</td>
+          <td style="font-size:0.75rem; font-weight:600; color:#334155">{{ d.centre_budgetaire.nom|truncatechars:20 }}</td>
+          <td style="font-size:0.78rem; color:#334155; max-width:160px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap">{{ d.libelle }}</td>
+          <td style="text-align:right; font-family:monospace; font-weight:800; color:#276228">{{ d.montant_xof|xof }}</td>
+          <td style="font-size:0.72rem; color:#64748b">{{ d.valide_par_dg.get_short_name|default:"—" }}</td>
+          <td style="font-size:0.72rem; color:#64748b">{{ d.date_validation_dg|date:"d/m/Y" }}</td>
+          <td>{% include "depenses/_statut_badge.html" with statut=d.statut %}</td>
+          <td>
+            <a href="{% url 'depenses:exploitation_detail' d.pk %}" title="Voir"
+               style="width:26px; height:26px; border-radius:8px; background:rgba(224,242,254,0.5); border:1px solid rgba(56,189,248,0.25); display:flex; align-items:center; justify-content:center; color:#0369a1; text-decoration:none"
+               onmouseover="this.style.background='rgba(186,230,253,0.5)'" onmouseout="this.style.background='rgba(224,242,254,0.5)'">
+              <svg style="width:13px; height:13px" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+            </a>
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="9" style="text-align:center; padding:32px; color:#94a3b8; font-size:0.85rem">Aucune.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="glass-card overflow-hidden animate-in delay-2">
+  <div style="padding:14px 20px; border-bottom:1px solid rgba(200,230,201,0.3)">
+    <h2 style="font-weight:700; font-size:0.88rem; color:#1a3d1b">Frais généraux approuvés DG <span style="color:#94a3b8; font-weight:400">({{ approuves_dg_fg.count }})</span></h2>
+  </div>
+  <div style="overflow-x:auto">
+    <table class="modern-table">
+      <thead><tr>
+        <th>N°</th><th>Date</th><th>Projet</th><th>Libellé</th>
+        <th style="text-align:right">Montant XOF</th><th>Approuvé DG par</th><th>Le</th><th>Statut</th><th></th>
+      </tr></thead>
+      <tbody>
+        {% for d in approuves_dg_fg %}
+        <tr>
+          <td><span style="font-family:monospace; font-size:0.72rem; font-weight:700; color:#8b5cf6; background:rgba(237,233,254,0.5); padding:2px 8px; border-radius:6px">{{ d.numero_saisie }}</span></td>
+          <td style="font-size:0.75rem; color:#64748b">{{ d.date_saisie|date:"d/m/Y" }}</td>
+          <td style="font-size:0.75rem; font-weight:600; color:#334155">{{ d.centre_budgetaire.nom|truncatechars:20 }}</td>
+          <td style="font-size:0.78rem; color:#334155; max-width:160px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap">{{ d.libelle }}</td>
+          <td style="text-align:right; font-family:monospace; font-weight:800; color:#8b5cf6">{{ d.montant_xof|xof }}</td>
+          <td style="font-size:0.72rem; color:#64748b">{{ d.valide_par_dg.get_short_name|default:"—" }}</td>
+          <td style="font-size:0.72rem; color:#64748b">{{ d.date_validation_dg|date:"d/m/Y" }}</td>
+          <td>{% include "depenses/_statut_badge.html" with statut=d.statut %}</td>
+          <td>
+            <a href="{% url 'depenses:fg_detail' d.pk %}" title="Voir"
+               style="width:26px; height:26px; border-radius:8px; background:rgba(237,233,254,0.5); border:1px solid rgba(139,92,246,0.25); display:flex; align-items:center; justify-content:center; color:#7c3aed; text-decoration:none"
+               onmouseover="this.style.background='rgba(196,181,253,0.3)'" onmouseout="this.style.background='rgba(237,233,254,0.5)'">
+              <svg style="width:13px; height:13px" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+            </a>
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="9" style="text-align:center; padding:32px; color:#94a3b8; font-size:0.85rem">Aucun.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% else %}
+<!-- ─── Onglet : Décaissements ─────────────────────────────────────── -->
+
+<div class="glass-card overflow-hidden mb-6 animate-in delay-2">
+  <div style="padding:14px 20px; border-bottom:1px solid rgba(200,230,201,0.3)">
+    <h2 style="font-weight:700; font-size:0.88rem; color:#1a3d1b">Exploitation décaissées <span style="color:#94a3b8; font-weight:400">({{ decaisses_exp.count }})</span></h2>
+  </div>
+  <div style="overflow-x:auto">
+    <table class="modern-table">
+      <thead><tr>
+        <th>N°</th><th>Date</th><th>Projet</th><th>Ligne</th><th>Libellé</th>
+        <th style="text-align:right">Montant XOF</th><th>Décaissé par</th><th>Le</th><th></th>
+      </tr></thead>
+      <tbody>
+        {% for d in decaisses_exp %}
+        <tr>
+          <td><span style="font-family:monospace; font-size:0.72rem; font-weight:700; color:#276228; background:rgba(200,230,201,0.3); padding:2px 8px; border-radius:6px">{{ d.numero_saisie }}</span></td>
+          <td style="font-size:0.75rem; color:#64748b">{{ d.date_saisie|date:"d/m/Y" }}</td>
+          <td style="font-size:0.75rem; font-weight:600; color:#334155">{{ d.centre_budgetaire.nom|truncatechars:20 }}</td>
+          <td><span class="status-info" style="font-size:0.68rem">{{ d.get_ligne_budgetaire_display }}</span></td>
+          <td style="font-size:0.78rem; color:#334155; max-width:140px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap">{{ d.libelle }}</td>
+          <td style="text-align:right; font-family:monospace; font-weight:800; color:#276228">{{ d.montant_xof|xof }}</td>
+          <td style="font-size:0.72rem; color:#64748b">{{ d.decaisse_par.get_short_name|default:"—" }}</td>
+          <td style="font-size:0.72rem; color:#64748b">{{ d.date_decaissement|date:"d/m/Y" }}</td>
+          <td>
+            <a href="{% url 'depenses:exploitation_detail' d.pk %}" title="Voir"
+               style="width:26px; height:26px; border-radius:8px; background:rgba(224,242,254,0.5); border:1px solid rgba(56,189,248,0.25); display:flex; align-items:center; justify-content:center; color:#0369a1; text-decoration:none"
+               onmouseover="this.style.background='rgba(186,230,253,0.5)'" onmouseout="this.style.background='rgba(224,242,254,0.5)'">
+              <svg style="width:13px; height:13px" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+            </a>
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="9" style="text-align:center; padding:32px; color:#94a3b8; font-size:0.85rem">Aucune dépense d'exploitation décaissée.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="glass-card overflow-hidden animate-in delay-2">
+  <div style="padding:14px 20px; border-bottom:1px solid rgba(200,230,201,0.3)">
+    <h2 style="font-weight:700; font-size:0.88rem; color:#1a3d1b">Frais généraux décaissés <span style="color:#94a3b8; font-weight:400">({{ decaisses_fg.count }})</span></h2>
+  </div>
+  <div style="overflow-x:auto">
+    <table class="modern-table">
+      <thead><tr>
+        <th>N°</th><th>Date</th><th>Projet</th><th>Ligne</th><th>Libellé</th>
+        <th style="text-align:right">Montant XOF</th><th>Décaissé par</th><th>Le</th><th></th>
+      </tr></thead>
+      <tbody>
+        {% for d in decaisses_fg %}
+        <tr>
+          <td><span style="font-family:monospace; font-size:0.72rem; font-weight:700; color:#8b5cf6; background:rgba(237,233,254,0.5); padding:2px 8px; border-radius:6px">{{ d.numero_saisie }}</span></td>
+          <td style="font-size:0.75rem; color:#64748b">{{ d.date_saisie|date:"d/m/Y" }}</td>
+          <td style="font-size:0.75rem; font-weight:600; color:#334155">{{ d.centre_budgetaire.nom|truncatechars:20 }}</td>
+          <td style="font-size:0.72rem; color:#334155">{{ d.get_ligne_budgetaire_display|truncatechars:18 }}</td>
+          <td style="font-size:0.78rem; color:#334155; max-width:140px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap">{{ d.libelle }}</td>
+          <td style="text-align:right; font-family:monospace; font-weight:800; color:#8b5cf6">{{ d.montant_xof|xof }}</td>
+          <td style="font-size:0.72rem; color:#64748b">{{ d.decaisse_par.get_short_name|default:"—" }}</td>
+          <td style="font-size:0.72rem; color:#64748b">{{ d.date_decaissement|date:"d/m/Y" }}</td>
+          <td>
+            <a href="{% url 'depenses:fg_detail' d.pk %}" title="Voir"
+               style="width:26px; height:26px; border-radius:8px; background:rgba(237,233,254,0.5); border:1px solid rgba(139,92,246,0.25); display:flex; align-items:center; justify-content:center; color:#7c3aed; text-decoration:none"
+               onmouseover="this.style.background='rgba(196,181,253,0.3)'" onmouseout="this.style.background='rgba(237,233,254,0.5)'">
+              <svg style="width:13px; height:13px" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+            </a>
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="9" style="text-align:center; padding:32px; color:#94a3b8; font-size:0.85rem">Aucun frais général décaissé.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% endif %}
+
+{% endblock %}

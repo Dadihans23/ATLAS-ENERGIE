@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block title %}Rejeter la dépense{% endblock %}
+{% block breadcrumb %}
+  <span style="color:rgba(100,116,139,0.4)">/</span>
+  <span style="color:#dc2626; font-weight:600">Rejeter</span>
+{% endblock %}
+
+{% block content %}
+<div style="max-width:520px; margin:0 auto">
+  <div class="flex items-center gap-4 mb-8 animate-in">
+    <a href="javascript:history.back()"
+       style="width:38px; height:38px; border-radius:12px; background:rgba(255,255,255,0.7); border:1px solid rgba(254,202,202,0.5); display:flex; align-items:center; justify-content:center; color:#dc2626; text-decoration:none">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+      </svg>
+    </a>
+    <div>
+      <h1 style="font-size:1.4rem; font-weight:800; color:#991b1b">Rejeter la dépense</h1>
+      <p style="color:#64748b; font-size:0.82rem; margin-top:3px">{{ depense.numero_saisie }} — {{ depense.libelle|truncatechars:60 }}</p>
+    </div>
+  </div>
+
+  <div class="form-page-card p-8 animate-in delay-1">
+    {% if is_dg %}
+    <div style="padding:14px 18px; background:rgba(254,243,199,0.6); border:1px solid rgba(251,191,36,0.3); border-radius:12px; margin-bottom:24px; font-size:0.83rem; color:#92400e">
+      <strong>Note DG :</strong> La dépense sera renvoyée en circuit et devra être réapprouvée par le directeur.
+    </div>
+    {% endif %}
+
+    <form method="post" action="{{ action_url }}">
+      {% csrf_token %}
+      <div style="margin-bottom:20px">
+        <label style="font-size:0.82rem; font-weight:700; color:#334155; display:block; margin-bottom:8px">
+          Motif du rejet <span style="color:#ef4444">*</span>
+        </label>
+        <textarea name="motif" rows="4" required
+          style="width:100%; padding:12px 14px; font-size:0.88rem; border:1.5px solid #e2e8f0; border-radius:10px; background:#f8fafc; color:#0f172a; resize:vertical; outline:none; box-sizing:border-box; font-family:inherit"
+          onfocus="this.style.borderColor='#dc2626'; this.style.boxShadow='0 0 0 3px rgba(220,38,38,0.1)'"
+          onblur="this.style.borderColor='#e2e8f0'; this.style.boxShadow='none'"
+          placeholder="Expliquez pourquoi cette dépense est rejetée…"></textarea>
+      </div>
+
+      <div style="display:flex; justify-content:flex-end; gap:12px">
+        <a href="javascript:history.back()" class="btn-glass-secondary">Annuler</a>
+        <button type="submit"
+          style="background:linear-gradient(135deg,#f87171,#dc2626); color:#fff; border:none; border-radius:12px; padding:10px 24px; font-weight:700; font-size:0.85rem; cursor:pointer; display:flex; align-items:center; gap:8px">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+          Confirmer le rejet
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

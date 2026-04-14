@@ -92,6 +92,36 @@ class ProjetDetailView(LoginRequiredMixin, DetailView):
                 'taux': _taux(projet.budget_frais_mission, projet.depense_frais_mission),
             },
         ]
+
+        fg_definitions = [
+            ('Loyers', 'loyers'),
+            ('CIE', 'cie'),
+            ('SODECI', 'sodeci'),
+            ('Dotation carburant', 'dotation_carburant'),
+            ('Frais taxi', 'frais_taxi'),
+            ('Fournitures bureau', 'fournitures_bureau'),
+            ('Produits entretien & droguerie', 'produits_entretien'),
+            ('Assurance santé', 'assurance_sante'),
+            ('Charges personnel', 'charges_personnel'),
+            ('Téléphone fixe & internet', 'telephone_fixe'),
+            ('Téléphone cellulaire', 'telephone_cellulaire'),
+            ('Entretien véhicule', 'entretien_vehicule'),
+            ('Impôts', 'impots'),
+            ('BIC', 'bic'),
+            ('Patente', 'patente'),
+            ('CNPS', 'cnps'),
+            ('Entretien informatique & télécom', 'entretien_informatique'),
+        ]
+        ctx['lignes_fg'] = [
+            {
+                'label': label,
+                'budget': getattr(projet, f'budget_fg_{key}'),
+                'depense': getattr(projet, f'depense_fg_{key}'),
+                'restant': getattr(projet, f'budget_fg_{key}') - getattr(projet, f'depense_fg_{key}'),
+                'taux': _taux(getattr(projet, f'budget_fg_{key}'), getattr(projet, f'depense_fg_{key}')),
+            }
+            for label, key in fg_definitions
+        ]
         return ctx
 
 

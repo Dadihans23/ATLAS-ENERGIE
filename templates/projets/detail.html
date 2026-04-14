@@ -86,15 +86,15 @@
   </div>
 </div>
 
-<!-- Détail par ligne budgétaire -->
+<!-- Détail par ligne budgétaire – Exploitation -->
 <div class="glass-card p-6 mb-6 animate-in delay-2">
   <h2 style="font-size:0.75rem; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:0.08em; margin-bottom:20px; display:flex; align-items:center; gap:8px">
-    <span style="width:20px; height:20px; border-radius:6px; background:linear-gradient(135deg,#38bdf8,#2d7a2f); display:inline-flex; align-items:center; justify-content:center">
+    <span style="width:20px; height:20px; border-radius:6px; background:linear-gradient(135deg,#fbbf24,#f59e0b); display:inline-flex; align-items:center; justify-content:center">
       <svg style="width:11px; height:11px; color:white; display:block" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
       </svg>
     </span>
-    Détail par ligne budgétaire
+    Budget Dépenses d'exploitation
   </h2>
   <div style="display:flex; flex-direction:column; gap:16px">
     {% for ligne in lignes %}
@@ -113,6 +113,42 @@
       <div class="progress-modern">
         <div class="progress-modern-fill {% if ligne.taux > 90 %}danger{% elif ligne.taux > 75 %}warning{% endif %}"
              style="width:min({{ ligne.taux }}%, 100%)"></div>
+      </div>
+      {% else %}
+      <div class="progress-modern"><div class="progress-modern-fill" style="width:0%"></div></div>
+      {% endif %}
+    </div>
+    {% endfor %}
+  </div>
+</div>
+
+<!-- Détail par ligne budgétaire – Frais Généraux -->
+<div class="glass-card p-6 mb-6 animate-in delay-2">
+  <h2 style="font-size:0.75rem; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:0.08em; margin-bottom:20px; display:flex; align-items:center; gap:8px">
+    <span style="width:20px; height:20px; border-radius:6px; background:linear-gradient(135deg,#8b5cf6,#7c3aed); display:inline-flex; align-items:center; justify-content:center">
+      <svg style="width:11px; height:11px; color:white; display:block" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
+      </svg>
+    </span>
+    Budget Frais Généraux
+  </h2>
+  <div style="display:flex; flex-direction:column; gap:16px">
+    {% for ligne in lignes_fg %}
+    <div>
+      <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:6px; flex-wrap:wrap; gap:8px">
+        <span style="font-weight:600; color:#334155; font-size:0.85rem">{{ ligne.label }}</span>
+        <div style="display:flex; gap:16px; font-size:0.75rem">
+          <span style="color:#94a3b8">Alloué : <strong style="color:#334155">{{ ligne.budget|xof }}</strong></span>
+          <span style="color:#94a3b8">Consommé : <strong style="color:#8b5cf6">{{ ligne.depense|xof }}</strong></span>
+          <span style="color:{% if ligne.restant < 0 %}#dc2626{% else %}#059669{% endif %}; font-weight:700">
+            Restant : {{ ligne.restant|xof }}
+          </span>
+        </div>
+      </div>
+      {% if ligne.budget > 0 %}
+      <div class="progress-modern">
+        <div class="progress-modern-fill {% if ligne.taux > 90 %}danger{% elif ligne.taux > 75 %}warning{% endif %}"
+             style="width:min({{ ligne.taux }}%, 100%); background:linear-gradient(90deg,#8b5cf6,#7c3aed)"></div>
       </div>
       {% else %}
       <div class="progress-modern"><div class="progress-modern-fill" style="width:0%"></div></div>

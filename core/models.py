@@ -18,11 +18,13 @@ from .managers import CustomUserManager
 class CustomUser(AbstractBaseUser, PermissionsMixin):
     """
     Utilisateur Atlas Énergies.
-    Deux rôles : Chef d'Agence (accès total) et Agent (saisie dépenses uniquement).
+    Rôles : DG (accès total), Directeur Technique, Directeur Financier, Agent.
     """
 
     class Role(models.TextChoices):
-        CHEF = 'chef', _("Chef d'Agence")
+        CHEF = 'chef', _("Directeur Général")
+        DIRECTEUR_TECHNIQUE = 'directeur_technique', _("Directeur Technique")
+        DIRECTEUR_FINANCIER = 'directeur_financier', _("Directeur Financier")
         AGENT = 'agent', _("Agent")
 
     # ── Identité ──────────────────────────────────────────────────────────────
@@ -42,7 +44,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
 
     # ── Rôle ──────────────────────────────────────────────────────────────────
     role = models.CharField(
-        max_length=10,
+        max_length=25,
         choices=Role.choices,
         default=Role.AGENT,
         verbose_name=_("Rôle"),
@@ -90,15 +92,50 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     # ── Propriétés de rôle ────────────────────────────────────────────────────
     @property
     def is_chef(self) -> bool:
-        """Vrai si l'utilisateur est Chef d'Agence."""
+        """Vrai si DG (alias is_dg pour compatibilité)."""
         return self.role == self.Role.CHEF
 
     @property
+    def is_dg(self) -> bool:
+        """Vrai si Directeur Général."""
+        return self.role == self.Role.CHEF
+
+    @property
+    def is_dt(self) -> bool:
+        """Vrai si Directeur Technique."""
+        return self.role == self.Role.DIRECTEUR_TECHNIQUE
+
+    @property
+    def is_df(self) -> bool:
+        """Vrai si Directeur Financier."""
+        return self.role == self.Role.DIRECTEUR_FINANCIER
+
+    @property
     def is_agent(self) -> bool:
-        """Vrai si l'utilisateur est Agent."""
+        """Vrai si Agent."""
         return self.role == self.Role.AGENT
 
     @property
+    def is_directeur(self) -> bool:
+        """Vrai si DT ou DF."""
+        return self.role in (self.Role.DIRECTEUR_TECHNIQUE, self.Role.DIRECTEUR_FINANCIER)
+
+    @property
+    def role_display(self) -> str:
+        """Libellé court du rôle pour la sidebar."""
+        labels = {
+            'chef': 'Directeur Général',
+            'directeur_technique': 'Directeur Technique',
+            'directeur_financier': 'Directeur Financier',
+            'agent': 'Agent',
+        }
+        return labels.get(self.role, self.role)
+
+    @property
     def role_display_badge(self) -> str:
-        """Classe CSS DaisyUI selon le rôle (pour les templates)."""
-        return 'badge-primary' if self.is_chef else 'badge-secondary'
+        """Classe CSS DaisyUI selon le rôle."""
+        if self.is_chef:
+            return 'badge-primary'
+        if self.is_directeur:
+            return 'badge-warning'
+        return 'badge-secondary'

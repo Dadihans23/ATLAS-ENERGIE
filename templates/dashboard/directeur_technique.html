@@ -1,0 +1,177 @@
+{% extends "base.html" %}
+{% load currency_tags %}
+
+{% block title %}Tableau de bord — DT{% endblock %}
+{% block breadcrumb %}
+  <span style="color:rgba(100,116,139,0.4)">/</span>
+  <span style="color:#276228; font-weight:600">Tableau de bord</span>
+{% endblock %}
+{% block page_title_mobile %}Tableau de bord{% endblock %}
+
+{% block content %}
+
+<!-- En-tête -->
+<div class="flex items-center justify-between mb-8 animate-in page-header-flex">
+  <div>
+    <h1 style="font-size:1.6rem; font-weight:800; color:#1a3d1b; line-height:1.2">
+      Bonjour, {{ request.user.first_name }}
+    </h1>
+    <p style="color:#64748b; font-size:0.85rem; margin-top:4px">
+      Directeur Technique — <span style="color:#2d7a2f">{{ nb_projets }} projet{{ nb_projets|pluralize }} actif{{ nb_projets|pluralize }}</span>
+      {% if nb_a_valider %}
+      <span style="background:#ef4444; color:#fff; border-radius:99px; font-size:0.7rem; font-weight:700; padding:2px 9px; margin-left:10px">{{ nb_a_valider }} à valider</span>
+      {% endif %}
+    </p>
+  </div>
+</div>
+
+<!-- KPI Cards -->
+<div class="grid grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
+  <div class="kpi-card animate-in delay-1">
+    <div class="flex items-start justify-between mb-4">
+      <div class="icon-badge icon-badge-blue"><svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V7z"/></svg></div>
+      <span class="status-info">Actifs</span>
+    </div>
+    <p style="font-size:2.4rem; font-weight:900; color:#276228; line-height:1">{{ nb_projets }}</p>
+    <p style="color:#64748b; font-size:0.75rem; font-weight:600; margin-top:6px; text-transform:uppercase; letter-spacing:0.05em">Projets actifs</p>
+  </div>
+
+  <div class="kpi-card animate-in delay-2">
+    <div class="flex items-start justify-between mb-4">
+      <div class="icon-badge icon-badge-amber"><svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></div>
+    </div>
+    <p style="font-size:1.05rem; font-weight:900; color:#92400e; line-height:1.2">{{ total_budget|xof }}</p>
+    <p style="color:#64748b; font-size:0.75rem; font-weight:600; margin-top:6px; text-transform:uppercase; letter-spacing:0.05em">Budget total</p>
+  </div>
+
+  <div class="kpi-card animate-in delay-3">
+    <div class="flex items-start justify-between mb-4">
+      <div class="icon-badge icon-badge-green"><svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg></div>
+      <span style="color:#276228; font-size:0.78rem; font-weight:700">{{ taux_global|pct }}</span>
+    </div>
+    <p style="font-size:1rem; font-weight:900; color:#1a3d1b; line-height:1.2">{{ total_depense|xof }}</p>
+    <div class="progress-modern mt-3"><div class="progress-modern-fill {% if taux_global > 90 %}danger{% elif taux_global > 75 %}warning{% endif %}" style="width:{{ taux_global }}%"></div></div>
+    <p style="color:#64748b; font-size:0.75rem; font-weight:600; margin-top:8px; text-transform:uppercase; letter-spacing:0.05em">Total consommé</p>
+  </div>
+
+  <div class="kpi-card animate-in delay-4">
+    <div class="flex items-start justify-between mb-4">
+      <div class="icon-badge {% if nb_a_valider %}icon-badge-red{% else %}icon-badge-green{% endif %}">
+        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+      </div>
+      {% if nb_a_valider %}<span class="status-danger">En attente</span>{% else %}<span class="status-ok">À jour</span>{% endif %}
+    </div>
+    <p style="font-size:2.4rem; font-weight:900; line-height:1; color:{% if nb_a_valider %}#dc2626{% else %}#276228{% endif %}">{{ nb_a_valider }}</p>
+    <p style="color:#64748b; font-size:0.75rem; font-weight:600; margin-top:6px; text-transform:uppercase; letter-spacing:0.05em">Exploitation à valider</p>
+  </div>
+</div>
+
+<!-- Dépenses d'exploitation à valider -->
+{% if a_valider %}
+<div class="glass-card overflow-hidden mb-6 animate-in delay-2">
+  <div style="padding:16px 20px; border-bottom:1px solid rgba(254,202,202,0.4); display:flex; align-items:center; justify-content:space-between; background:rgba(254,242,242,0.3)">
+    <div style="display:flex; align-items:center; gap:10px">
+      <div style="width:32px; height:32px; border-radius:10px; background:linear-gradient(135deg,#f87171,#ef4444); display:flex; align-items:center; justify-content:center">
+        <svg class="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+      </div>
+      <h2 style="font-weight:700; font-size:0.9rem; color:#991b1b">
+        Dépenses en attente de votre validation
+        <span style="background:#ef4444; color:#fff; border-radius:99px; font-size:0.65rem; padding:2px 8px; margin-left:8px">{{ nb_a_valider }}</span>
+      </h2>
+    </div>
+    <a href="{% url 'depenses:exploitation_liste' %}?statut=soumis" style="color:#dc2626; font-size:0.75rem; font-weight:600; text-decoration:none">Voir toutes →</a>
+  </div>
+  <div style="overflow-x:auto">
+    <table class="modern-table">
+      <thead>
+        <tr><th>N°</th><th>Date</th><th>Projet</th><th>Ligne</th><th>Libellé</th><th style="text-align:right">Montant</th><th>Agent</th><th>Actions</th></tr>
+      </thead>
+      <tbody>
+        {% for d in a_valider %}
+        <tr>
+          <td><span style="font-family:monospace; font-size:0.72rem; font-weight:700; color:#276228; background:rgba(200,230,201,0.3); padding:2px 8px; border-radius:6px">{{ d.numero_saisie }}</span></td>
+          <td style="font-size:0.75rem; color:#64748b">{{ d.date_saisie|date:"d/m/Y" }}</td>
+          <td style="font-size:0.75rem; font-weight:600; color:#334155">{{ d.centre_budgetaire.nom|truncatechars:22 }}</td>
+          <td><span class="status-info">{{ d.get_ligne_budgetaire_display }}</span></td>
+          <td style="font-size:0.78rem; color:#334155; max-width:150px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap">{{ d.libelle }}</td>
+          <td style="text-align:right; font-family:monospace; font-weight:800; color:#276228">{{ d.montant_xof|xof }}</td>
+          <td style="font-size:0.72rem; color:#94a3b8">{{ d.created_by.get_short_name }}</td>
+          <td>
+            <div style="display:flex; gap:6px; align-items:center">
+              <form method="post" action="{% url 'depenses:approuver_n1' 'exploitation' d.pk %}">
+                {% csrf_token %}
+                <button type="submit" style="background:linear-gradient(135deg,#34d399,#059669); color:#fff; border:none; border-radius:8px; padding:5px 12px; font-size:0.72rem; font-weight:700; cursor:pointer; white-space:nowrap">✓ Approuver</button>
+              </form>
+              <a href="{% url 'depenses:rejeter_n1' 'exploitation' d.pk %}"
+                 style="background:rgba(254,226,226,0.7); color:#dc2626; border:1px solid rgba(248,113,113,0.3); border-radius:8px; padding:5px 12px; font-size:0.72rem; font-weight:700; text-decoration:none; white-space:nowrap">✕ Rejeter</a>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endif %}
+
+<!-- Projets -->
+<div class="mb-8 animate-in delay-2">
+  <div class="flex items-center justify-between mb-4">
+    <h2 style="font-size:1.05rem; font-weight:800; color:#1a3d1b">Projets en cours</h2>
+    <a href="{% url 'projets:liste' %}" class="btn-glass-secondary" style="padding:7px 14px; font-size:0.78rem">Voir tous →</a>
+  </div>
+  <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
+    {% for p in projets|slice:":6" %}
+    <div class="glass-card p-5">
+      <div class="flex items-start justify-between mb-4">
+        <div class="min-w-0 mr-3">
+          <h3 style="font-weight:700; color:#1a3d1b; font-size:0.9rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis">{{ p.nom }}</h3>
+        </div>
+        {% if p.est_en_depassement %}<span class="status-danger shrink-0">⚠ Dépassement</span>{% else %}<span class="status-ok shrink-0">● Actif</span>{% endif %}
+      </div>
+      <div class="flex justify-between items-baseline mb-2">
+        <span style="color:#276228; font-weight:700; font-size:0.88rem">{{ p.total_depense|xof }}</span>
+        <span style="color:#94a3b8; font-size:0.75rem">/ {{ p.total_budget|xof }}</span>
+      </div>
+      <div class="progress-modern mb-3">
+        <div class="progress-modern-fill {% if p.taux_consommation > 90 %}danger{% elif p.taux_consommation > 75 %}warning{% endif %}" style="width:min({{ p.taux_consommation }}%, 100%)"></div>
+      </div>
+      <a href="{% url 'projets:detail' p.pk %}" class="btn-glass-secondary" style="width:100%; justify-content:center; padding:7px; font-size:0.75rem; border-radius:10px; display:flex">Voir le détail</a>
+    </div>
+    {% empty %}
+    <div class="glass-card p-8 text-center" style="grid-column:1/-1"><p style="color:#94a3b8">Aucun projet actif.</p></div>
+    {% endfor %}
+  </div>
+</div>
+
+<!-- Dernières dépenses exploitation -->
+<div class="glass-card overflow-hidden animate-in delay-3">
+  <div style="padding:16px 20px; border-bottom:1px solid rgba(200,230,201,0.3); display:flex; align-items:center; justify-content:space-between">
+    <div style="display:flex; align-items:center; gap:10px">
+      <div class="icon-badge icon-badge-blue" style="width:32px; height:32px; border-radius:10px"><svg class="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 14l6-6m-5.5.5h.01m4.99 5h.01M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2z"/></svg></div>
+      <span style="font-weight:700; font-size:0.85rem; color:#1a3d1b">Dernières dépenses exploitation</span>
+    </div>
+    <a href="{% url 'depenses:exploitation_liste' %}" style="color:#2d7a2f; font-size:0.75rem; font-weight:600; text-decoration:none">Voir tout →</a>
+  </div>
+  <div style="overflow-x:auto">
+    <table class="modern-table">
+      <thead><tr><th>N°</th><th>Projet</th><th>Ligne</th><th style="text-align:right">Montant</th><th>Statut</th><th>Agent</th></tr></thead>
+      <tbody>
+        {% for d in recentes %}
+        <tr>
+          <td><span style="font-family:monospace; font-size:0.72rem; font-weight:700; color:#276228; background:rgba(200,230,201,0.3); padding:2px 8px; border-radius:6px">{{ d.numero_saisie }}</span></td>
+          <td style="font-size:0.78rem; color:#334155; font-weight:500">{{ d.centre_budgetaire.nom|truncatechars:22 }}</td>
+          <td style="font-size:0.75rem; color:#64748b">{{ d.get_ligne_budgetaire_display }}</td>
+          <td style="text-align:right; font-weight:800; font-size:0.82rem; color:#276228">{{ d.montant_xof|xof }}</td>
+          <td>{% include "depenses/_statut_badge.html" with statut=d.statut %}</td>
+          <td style="font-size:0.72rem; color:#94a3b8">{{ d.created_by.get_short_name }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="6" style="text-align:center; padding:28px; color:#94a3b8">Aucune dépense</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% endblock %}

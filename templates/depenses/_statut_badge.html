@@ -1,0 +1,11 @@
+{% if statut == 'soumis' %}
+  <span style="background:rgba(219,234,254,0.6); color:#1d4ed8; border:1px solid rgba(147,197,253,0.4); border-radius:99px; padding:2px 10px; font-size:0.68rem; font-weight:700; white-space:nowrap">● Soumis</span>
+{% elif statut == 'approuve_n1' %}
+  <span style="background:rgba(254,243,199,0.6); color:#92400e; border:1px solid rgba(253,230,138,0.5); border-radius:99px; padding:2px 10px; font-size:0.68rem; font-weight:700; white-space:nowrap">✓ Dir. approuvé</span>
+{% elif statut == 'approuve_dg' %}
+  <span style="background:rgba(209,250,229,0.6); color:#065f46; border:1px solid rgba(110,231,183,0.4); border-radius:99px; padding:2px 10px; font-size:0.68rem; font-weight:700; white-space:nowrap">✓✓ DG approuvé</span>
+{% elif statut == 'rejete' %}
+  <span style="background:rgba(254,226,226,0.6); color:#991b1b; border:1px solid rgba(252,165,165,0.4); border-radius:99px; padding:2px 10px; font-size:0.68rem; font-weight:700; white-space:nowrap">✕ Rejeté</span>
+{% elif statut == 'decaisse' %}
+  <span style="background:rgba(237,233,254,0.6); color:#4c1d95; border:1px solid rgba(196,181,253,0.4); border-radius:99px; padding:2px 10px; font-size:0.68rem; font-weight:700; white-space:nowrap">💳 Décaissé</span>
+{% endif %}
