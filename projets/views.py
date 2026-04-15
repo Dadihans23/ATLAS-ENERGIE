@@ -5,6 +5,7 @@ from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import redirect
 from django.urls import reverse, reverse_lazy
+from django.utils import timezone
 from django.views.generic import CreateView, DeleteView, DetailView, ListView, UpdateView
 
 from core.mixins import ChefRequiredMixin
@@ -171,10 +172,25 @@ class ProjetDeleteView(ChefRequiredMixin, DeleteView):
         ctx = super().get_context_data(**kwargs)
         ctx['objet_nom'] = self.object.nom
         ctx['retour_url'] = reverse('projets:liste')
+        # Compte toutes les dépenses (y compris déjà archivées éventuellement)
+        ctx['nb_exp'] = self.object.depenses_exploitation.count()
+        ctx['nb_fg'] = self.object.depenses_frais_generaux.count()
         return ctx
 
     def form_valid(self, form):
         nom = self.object.nom
-        self.object.delete()
-        messages.success(self.request, f"Projet « {nom} » supprimé.")
+        now = timezone.now()
+        # Soft-delete en cascade sur toutes les dépenses du projet
+        nb_exp = self.object.depenses_exploitation.update(is_deleted=True, deleted_at=now)
+        nb_fg = self.object.depenses_frais_generaux.update(is_deleted=True, deleted_at=now)
+        # Soft-delete du projet lui-même
+        self.object.is_deleted = True
+        self.object.deleted_at = now
+        self.object.is_active = False
+        self.object.save(update_fields=['is_deleted', 'deleted_at', 'is_active'])
+        messages.success(
+            self.request,
+            f"Projet « {nom} » archivé avec {nb_exp} dépense(s) d'exploitation "
+            f"et {nb_fg} frais généraux."
+        )
         return redirect(self.success_url)

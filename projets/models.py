@@ -12,8 +12,15 @@ from decimal import Decimal
 from django.conf import settings
 from django.core.validators import MinValueValidator
 from django.db import models
+from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from simple_history.models import HistoricalRecords
+
+
+class ActiveProjetManager(models.Manager):
+    """Manager par défaut — exclut les projets soft-deleted."""
+    def get_queryset(self):
+        return super().get_queryset().filter(is_deleted=False)
 
 
 class Projet(models.Model):
@@ -152,6 +159,16 @@ class Projet(models.Model):
         verbose_name=_("Projet actif"),
         db_index=True,
     )
+    is_deleted = models.BooleanField(
+        default=False,
+        verbose_name=_("Archivé (supprimé)"),
+        db_index=True,
+    )
+    deleted_at = models.DateTimeField(
+        null=True,
+        blank=True,
+        verbose_name=_("Archivé le"),
+    )
     created_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.PROTECT,
@@ -166,6 +183,10 @@ class Projet(models.Model):
         auto_now=True,
         verbose_name=_("Dernière modification"),
     )
+
+    # ── Managers ──────────────────────────────────────────────────────────────
+    objects = ActiveProjetManager()       # par défaut : exclut les archivés
+    all_objects = models.Manager()        # accès complet (admin, audit)
 
     # ── Audit ─────────────────────────────────────────────────────────────────
     history = HistoricalRecords(verbose_name=_("Historique"))

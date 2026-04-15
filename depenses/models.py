@@ -80,6 +80,14 @@ def _next_numero(prefix: str, model_class, year: int) -> str:
     return f"{prefix}-{year}-{seq:05d}"
 
 
+# ─── Manager soft-delete ─────────────────────────────────────────────────────
+
+class ActiveDepenseManager(models.Manager):
+    """Manager par défaut — exclut les dépenses soft-deleted."""
+    def get_queryset(self):
+        return super().get_queryset().filter(is_deleted=False)
+
+
 # ─── Statut workflow ─────────────────────────────────────────────────────────
 
 class StatutDepense(models.TextChoices):
@@ -220,6 +228,18 @@ class DepenseBase(models.Model):
         verbose_name=_("Date de décaissement"),
     )
 
+    # ── Soft delete ───────────────────────────────────────────────────────────
+    is_deleted = models.BooleanField(
+        default=False,
+        verbose_name=_("Archivé (supprimé)"),
+        db_index=True,
+    )
+    deleted_at = models.DateTimeField(
+        null=True,
+        blank=True,
+        verbose_name=_("Archivé le"),
+    )
+
     class Meta:
         abstract = True
 
@@ -289,6 +309,10 @@ class DepenseExploitation(DepenseBase):
         validators=[validate_file_extension, validate_file_size],
         verbose_name=_("Pièce jointe"),
     )
+
+    # ── Managers ──────────────────────────────────────────────────────────────
+    objects = ActiveDepenseManager()
+    all_objects = models.Manager()
 
     # ── Audit ─────────────────────────────────────────────────────────────────
     history = HistoricalRecords(verbose_name=_("Historique"))
@@ -393,6 +417,10 @@ class DepenseFraisGeneraux(DepenseBase):
         validators=[validate_file_extension, validate_file_size],
         verbose_name=_("Pièce jointe"),
     )
+
+    # ── Managers ──────────────────────────────────────────────────────────────
+    objects = ActiveDepenseManager()
+    all_objects = models.Manager()
 
     # ── Audit ─────────────────────────────────────────────────────────────────
     history = HistoricalRecords(verbose_name=_("Historique"))

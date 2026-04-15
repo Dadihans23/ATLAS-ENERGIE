@@ -1,11 +1,11 @@
 {% extends "base.html" %}
 
-{% block title %}Supprimer {{ projet.nom }}{% endblock %}
+{% block title %}Archiver {{ projet.nom }}{% endblock %}
 {% block breadcrumb %}
   <span style="color:rgba(100,116,139,0.4)">/</span>
   <a href="{% url 'projets:liste' %}" style="color:#64748b; font-weight:500; text-decoration:none">Projets</a>
   <span style="color:rgba(100,116,139,0.4)">/</span>
-  <span style="color:#dc2626; font-weight:600">Supprimer</span>
+  <span style="color:#dc2626; font-weight:600">Archiver</span>
 {% endblock %}
 
 {% block content %}
@@ -13,22 +13,46 @@
   <div class="form-page-card p-10 animate-in">
     <div style="width:64px; height:64px; border-radius:20px; background:linear-gradient(135deg,#f87171,#ef4444); box-shadow:0 8px 24px rgba(239,68,68,0.35); display:flex; align-items:center; justify-content:center; margin:0 auto 20px">
       <svg style="width:30px; height:30px; color:white; display:block" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"/>
       </svg>
     </div>
-    <h1 style="font-size:1.4rem; font-weight:800; color:#0c4a6e; margin-bottom:10px">Confirmer la suppression</h1>
+    <h1 style="font-size:1.4rem; font-weight:800; color:#0c4a6e; margin-bottom:10px">Archiver ce projet ?</h1>
     <div style="background:rgba(254,226,226,0.5); border:1px solid rgba(248,113,113,0.3); border-radius:14px; padding:14px; margin-bottom:16px">
       <p style="font-weight:700; color:#991b1b; font-size:0.95rem">{{ projet.nom }}</p>
     </div>
-    <p style="color:#64748b; font-size:0.85rem; margin-bottom:8px">Vous êtes sur le point de supprimer ce projet définitivement.</p>
-    <p style="color:#94a3b8; font-size:0.8rem; margin-bottom:28px">⚠ Cette action est irréversible et supprimera toutes les dépenses associées.</p>
-    <div style="display:flex; gap:12px; justify-content:center">
+
+    <p style="color:#64748b; font-size:0.85rem; margin-bottom:8px">
+      Ce projet sera <strong>archivé</strong> (suppression logique) — il disparaîtra de toutes les listes
+      mais restera conservé en base de données.
+    </p>
+
+    {% if nb_exp or nb_fg %}
+    <div style="background:rgba(255,237,213,0.6); border:1px solid rgba(251,146,60,0.35); border-radius:12px; padding:12px 16px; margin:16px 0; text-align:left">
+      <p style="font-size:0.78rem; font-weight:700; color:#9a3412; margin-bottom:8px">Archivage en cascade :</p>
+      <div style="display:flex; gap:10px; flex-wrap:wrap">
+        {% if nb_exp %}
+        <span style="font-size:0.78rem; color:#c2410c; background:rgba(254,215,170,0.5); border-radius:8px; padding:3px 10px; font-weight:600">
+          {{ nb_exp }} dépense(s) d'exploitation
+        </span>
+        {% endif %}
+        {% if nb_fg %}
+        <span style="font-size:0.78rem; color:#7c3aed; background:rgba(237,233,254,0.6); border-radius:8px; padding:3px 10px; font-weight:600">
+          {{ nb_fg }} frais généraux
+        </span>
+        {% endif %}
+      </div>
+    </div>
+    {% else %}
+    <p style="color:#94a3b8; font-size:0.78rem; margin:12px 0 20px">Aucune dépense associée.</p>
+    {% endif %}
+
+    <div style="display:flex; gap:12px; justify-content:center; margin-top:20px">
       <a href="{% url 'projets:liste' %}" class="btn-glass-secondary" style="padding:11px 22px">Annuler</a>
       <form method="post" style="display:inline">
         {% csrf_token %}
         <button type="submit" style="background:linear-gradient(135deg,#f87171,#ef4444); color:#fff; border:none; border-radius:12px; padding:11px 26px; font-weight:700; font-size:0.88rem; cursor:pointer; box-shadow:0 4px 16px rgba(239,68,68,0.4); transition:all 0.25s"
                 onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform=''">
-          Supprimer définitivement
+          Archiver le projet
         </button>
       </form>
     </div>
