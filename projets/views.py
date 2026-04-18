@@ -123,6 +123,16 @@ class ProjetDetailView(LoginRequiredMixin, DetailView):
             }
             for label, key in fg_definitions
         ]
+        ctx['recap_exp'] = {
+            'alloue': projet.total_budget_exploitation,
+            'consomme': projet.total_depense_exploitation,
+            'restant': projet.total_budget_exploitation - projet.total_depense_exploitation,
+        }
+        ctx['recap_fg'] = {
+            'alloue': projet.total_budget_fg,
+            'consomme': projet.total_depense_fg,
+            'restant': projet.total_budget_fg - projet.total_depense_fg,
+        }
         return ctx
 
 

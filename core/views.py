@@ -63,7 +63,8 @@ class AgentListView(ChefRequiredMixin, ListView):
         qs = super().get_queryset()
         role = self.request.GET.get('role', '')
         statut = self.request.GET.get('statut', '')
-        if role in ('chef', 'agent'):
+        valid_roles = [r.value for r in CustomUser.Role]
+        if role in valid_roles:
             qs = qs.filter(role=role)
         if statut == 'actif':
             qs = qs.filter(is_active=True)
@@ -73,8 +74,12 @@ class AgentListView(ChefRequiredMixin, ListView):
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
-        ctx['nb_agents'] = CustomUser.objects.filter(role=CustomUser.Role.AGENT).count()
+        ctx['nb_total'] = CustomUser.objects.count()
         ctx['nb_chefs'] = CustomUser.objects.filter(role=CustomUser.Role.CHEF).count()
+        ctx['nb_dt'] = CustomUser.objects.filter(role=CustomUser.Role.DIRECTEUR_TECHNIQUE).count()
+        ctx['nb_df'] = CustomUser.objects.filter(role=CustomUser.Role.DIRECTEUR_FINANCIER).count()
+        ctx['nb_agents'] = CustomUser.objects.filter(role=CustomUser.Role.AGENT).count()
+        ctx['role_choices'] = CustomUser.Role.choices
         ctx['filter_role'] = self.request.GET.get('role', '')
         ctx['filter_statut'] = self.request.GET.get('statut', '')
         return ctx

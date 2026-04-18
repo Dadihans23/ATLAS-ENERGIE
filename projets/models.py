@@ -171,7 +171,9 @@ class Projet(models.Model):
     )
     created_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
-        on_delete=models.PROTECT,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
         related_name='projets_crees',
         verbose_name=_("Créé par"),
     )

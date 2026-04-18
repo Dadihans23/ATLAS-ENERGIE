@@ -46,7 +46,7 @@
           <td><span class="status-info">{{ d.get_ligne_budgetaire_display }}</span></td>
           <td style="font-size:0.78rem; color:#334155; max-width:150px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap">{{ d.libelle }}</td>
           <td style="text-align:right; font-family:monospace; font-weight:800; color:#276228">{{ d.montant_xof|xof }}</td>
-          <td style="font-size:0.72rem; color:#94a3b8">{{ d.created_by.get_short_name }}</td>
+          <td style="font-size:0.72rem; color:#94a3b8">{{ d.created_by.get_short_name|default:"—" }}</td>
           <td style="font-size:0.72rem; color:#64748b">{{ d.date_validation_dg|date:"d/m/Y" }}</td>
           <td>
             <div style="display:flex; gap:6px; align-items:center; justify-content:flex-end">
@@ -108,7 +108,7 @@
           <td><span class="status-info">{{ d.get_ligne_budgetaire_display }}</span></td>
           <td style="font-size:0.78rem; color:#334155; max-width:150px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap">{{ d.libelle }}</td>
           <td style="text-align:right; font-family:monospace; font-weight:800; color:#8b5cf6">{{ d.montant_xof|xof }}</td>
-          <td style="font-size:0.72rem; color:#94a3b8">{{ d.created_by.get_short_name }}</td>
+          <td style="font-size:0.72rem; color:#94a3b8">{{ d.created_by.get_short_name|default:"—" }}</td>
           <td style="font-size:0.72rem; color:#64748b">{{ d.date_validation_dg|date:"d/m/Y" }}</td>
           <td>
             <div style="display:flex; gap:6px; align-items:center; justify-content:flex-end">

@@ -95,7 +95,7 @@
           <td><span class="status-info">{{ d.get_ligne_budgetaire_display }}</span></td>
           <td style="font-size:0.78rem; color:#334155; max-width:150px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap">{{ d.libelle }}</td>
           <td style="text-align:right; font-family:monospace; font-weight:800; color:#8b5cf6">{{ d.montant_xof|xof }}</td>
-          <td style="font-size:0.72rem; color:#94a3b8">{{ d.created_by.get_short_name }}</td>
+          <td style="font-size:0.72rem; color:#94a3b8">{{ d.created_by.get_short_name|default:"—" }}</td>
           <td>
             <div style="display:flex; gap:6px; align-items:center">
               <form method="post" action="{% url 'depenses:approuver_n1' 'fg' d.pk %}">
@@ -160,7 +160,7 @@
           <td style="font-size:0.75rem; color:#64748b">{{ d.get_ligne_budgetaire_display }}</td>
           <td style="text-align:right; font-weight:800; font-size:0.82rem; color:#8b5cf6">{{ d.montant_xof|xof }}</td>
           <td>{% include "depenses/_statut_badge.html" with statut=d.statut %}</td>
-          <td style="font-size:0.72rem; color:#94a3b8">{{ d.created_by.get_short_name }}</td>
+          <td style="font-size:0.72rem; color:#94a3b8">{{ d.created_by.get_short_name|default:"—" }}</td>
         </tr>
         {% empty %}
         <tr><td colspan="6" style="text-align:center; padding:28px; color:#94a3b8">Aucun frais enregistré</td></tr>

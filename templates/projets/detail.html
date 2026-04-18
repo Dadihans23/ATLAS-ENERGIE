@@ -88,14 +88,29 @@
 
 <!-- Détail par ligne budgétaire – Exploitation -->
 <div class="glass-card p-6 mb-6 animate-in delay-2">
-  <h2 style="font-size:0.75rem; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:0.08em; margin-bottom:20px; display:flex; align-items:center; gap:8px">
-    <span style="width:20px; height:20px; border-radius:6px; background:linear-gradient(135deg,#fbbf24,#f59e0b); display:inline-flex; align-items:center; justify-content:center">
-      <svg style="width:11px; height:11px; color:white; display:block" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
-      </svg>
-    </span>
-    Budget Dépenses d'exploitation
-  </h2>
+  <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; margin-bottom:20px">
+    <h2 style="font-size:0.75rem; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:0.08em; display:flex; align-items:center; gap:8px; margin:0">
+      <span style="width:20px; height:20px; border-radius:6px; background:linear-gradient(135deg,#fbbf24,#f59e0b); display:inline-flex; align-items:center; justify-content:center">
+        <svg style="width:11px; height:11px; color:white; display:block" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+        </svg>
+      </span>
+      Budget Dépenses d'exploitation
+    </h2>
+    <div style="display:flex; gap:10px; flex-wrap:wrap">
+      <span style="font-size:0.72rem; color:#64748b; background:rgba(241,245,249,0.7); border:1px solid rgba(148,163,184,0.2); border-radius:8px; padding:4px 10px">
+        Alloué : <strong style="color:#334155; font-family:monospace">{{ recap_exp.alloue|xof }}</strong>
+      </span>
+      <span style="font-size:0.72rem; color:#64748b; background:rgba(220,252,231,0.5); border:1px solid rgba(74,222,128,0.2); border-radius:8px; padding:4px 10px">
+        Consommé : <strong style="color:#276228; font-family:monospace">{{ recap_exp.consomme|xof }}</strong>
+      </span>
+      <span style="font-size:0.72rem; font-weight:700; border-radius:8px; padding:4px 10px;
+        {% if recap_exp.restant < 0 %}background:rgba(254,226,226,0.5); border:1px solid rgba(248,113,113,0.2); color:#dc2626
+        {% else %}background:rgba(209,250,229,0.5); border:1px solid rgba(52,211,153,0.2); color:#059669{% endif %}">
+        Restant : <span style="font-family:monospace">{{ recap_exp.restant|xof }}</span>
+      </span>
+    </div>
+  </div>
   <div style="display:flex; flex-direction:column; gap:16px">
     {% for ligne in lignes %}
     <div>
@@ -120,18 +135,34 @@
     </div>
     {% endfor %}
   </div>
+  
 </div>
 
 <!-- Détail par ligne budgétaire – Frais Généraux -->
 <div class="glass-card p-6 mb-6 animate-in delay-2">
-  <h2 style="font-size:0.75rem; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:0.08em; margin-bottom:20px; display:flex; align-items:center; gap:8px">
-    <span style="width:20px; height:20px; border-radius:6px; background:linear-gradient(135deg,#8b5cf6,#7c3aed); display:inline-flex; align-items:center; justify-content:center">
-      <svg style="width:11px; height:11px; color:white; display:block" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
-      </svg>
-    </span>
-    Budget Frais Généraux
-  </h2>
+  <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; margin-bottom:20px">
+    <h2 style="font-size:0.75rem; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:0.08em; display:flex; align-items:center; gap:8px; margin:0">
+      <span style="width:20px; height:20px; border-radius:6px; background:linear-gradient(135deg,#8b5cf6,#7c3aed); display:inline-flex; align-items:center; justify-content:center">
+        <svg style="width:11px; height:11px; color:white; display:block" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
+        </svg>
+      </span>
+      Budget Frais Généraux
+    </h2>
+    <div style="display:flex; gap:10px; flex-wrap:wrap">
+      <span style="font-size:0.72rem; color:#64748b; background:rgba(241,245,249,0.7); border:1px solid rgba(148,163,184,0.2); border-radius:8px; padding:4px 10px">
+        Alloué : <strong style="color:#334155; font-family:monospace">{{ recap_fg.alloue|xof }}</strong>
+      </span>
+      <span style="font-size:0.72rem; color:#64748b; background:rgba(237,233,254,0.5); border:1px solid rgba(139,92,246,0.2); border-radius:8px; padding:4px 10px">
+        Consommé : <strong style="color:#8b5cf6; font-family:monospace">{{ recap_fg.consomme|xof }}</strong>
+      </span>
+      <span style="font-size:0.72rem; font-weight:700; border-radius:8px; padding:4px 10px;
+        {% if recap_fg.restant < 0 %}background:rgba(254,226,226,0.5); border:1px solid rgba(248,113,113,0.2); color:#dc2626
+        {% else %}background:rgba(209,250,229,0.5); border:1px solid rgba(52,211,153,0.2); color:#059669{% endif %}">
+        Restant : <span style="font-family:monospace">{{ recap_fg.restant|xof }}</span>
+      </span>
+    </div>
+  </div>
   <div style="display:flex; flex-direction:column; gap:16px">
     {% for ligne in lignes_fg %}
     <div>
@@ -175,6 +206,23 @@
     <a href="{% url 'depenses:exploitation_liste' %}?projet={{ projet.pk }}"
        style="color:#2d7a2f; font-size:0.75rem; font-weight:600; text-decoration:none">Voir toutes →</a>
   </div>
+  <!-- Récap exploitation -->
+  <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:0; border-bottom:1px solid rgba(200,230,201,0.25)">
+    <div style="padding:12px 20px; border-right:1px solid rgba(200,230,201,0.25)">
+      <p style="font-size:0.65rem; font-weight:700; color:#94a3b8; text-transform:uppercase; letter-spacing:0.06em; margin-bottom:3px">Alloué</p>
+      <p style="font-size:0.9rem; font-weight:800; color:#334155; font-family:monospace">{{ recap_exp.alloue|xof }}</p>
+    </div>
+    <div style="padding:12px 20px; border-right:1px solid rgba(200,230,201,0.25)">
+      <p style="font-size:0.65rem; font-weight:700; color:#94a3b8; text-transform:uppercase; letter-spacing:0.06em; margin-bottom:3px">Consommé</p>
+      <p style="font-size:0.9rem; font-weight:800; color:#276228; font-family:monospace">{{ recap_exp.consomme|xof }}</p>
+    </div>
+    <div style="padding:12px 20px;">
+      <p style="font-size:0.65rem; font-weight:700; color:#94a3b8; text-transform:uppercase; letter-spacing:0.06em; margin-bottom:3px">Restant</p>
+      <p style="font-size:0.9rem; font-weight:800; font-family:monospace; color:{% if recap_exp.restant < 0 %}#dc2626{% else %}#059669{% endif %}">
+        {{ recap_exp.restant|xof }}
+      </p>
+    </div>
+  </div>
   <div style="overflow-x:auto">
     <table class="modern-table">
       <thead>
@@ -199,7 +247,7 @@
           <td style="font-size:0.78rem; color:#334155; max-width:160px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap">{{ d.libelle }}</td>
           <td style="text-align:right; font-family:monospace; font-weight:800; font-size:0.85rem; color:#276228">{{ d.montant_xof|xof }}</td>
           <td style="font-size:0.72rem; color:#64748b">{{ d.devise }}</td>
-          <td style="font-size:0.72rem; color:#94a3b8">{{ d.created_by.get_short_name }}</td>
+          <td style="font-size:0.72rem; color:#94a3b8">{{ d.created_by.get_short_name|default:"—" }}</td>
           {% if request.user.is_chef %}
           <td>
             <div style="display:flex; gap:5px">
@@ -250,6 +298,23 @@
     <a href="{% url 'depenses:fg_liste' %}?projet={{ projet.pk }}"
        style="color:#2d7a2f; font-size:0.75rem; font-weight:600; text-decoration:none">Voir tous →</a>
   </div>
+  <!-- Récap frais généraux -->
+  <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:0; border-bottom:1px solid rgba(237,233,254,0.4)">
+    <div style="padding:12px 20px; border-right:1px solid rgba(237,233,254,0.4)">
+      <p style="font-size:0.65rem; font-weight:700; color:#94a3b8; text-transform:uppercase; letter-spacing:0.06em; margin-bottom:3px">Alloué</p>
+      <p style="font-size:0.9rem; font-weight:800; color:#334155; font-family:monospace">{{ recap_fg.alloue|xof }}</p>
+    </div>
+    <div style="padding:12px 20px; border-right:1px solid rgba(237,233,254,0.4)">
+      <p style="font-size:0.65rem; font-weight:700; color:#94a3b8; text-transform:uppercase; letter-spacing:0.06em; margin-bottom:3px">Consommé</p>
+      <p style="font-size:0.9rem; font-weight:800; color:#8b5cf6; font-family:monospace">{{ recap_fg.consomme|xof }}</p>
+    </div>
+    <div style="padding:12px 20px;">
+      <p style="font-size:0.65rem; font-weight:700; color:#94a3b8; text-transform:uppercase; letter-spacing:0.06em; margin-bottom:3px">Restant</p>
+      <p style="font-size:0.9rem; font-weight:800; font-family:monospace; color:{% if recap_fg.restant < 0 %}#dc2626{% else %}#059669{% endif %}">
+        {{ recap_fg.restant|xof }}
+      </p>
+    </div>
+  </div>
   <div style="overflow-x:auto">
     <table class="modern-table">
       <thead>
@@ -274,7 +339,7 @@
           <td style="font-size:0.78rem; color:#334155; max-width:160px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap">{{ d.libelle }}</td>
           <td style="text-align:right; font-family:monospace; font-weight:800; font-size:0.85rem; color:#8b5cf6">{{ d.montant_xof|xof }}</td>
           <td style="font-size:0.72rem; color:#64748b">{{ d.devise }}</td>
-          <td style="font-size:0.72rem; color:#94a3b8">{{ d.created_by.get_short_name }}</td>
+          <td style="font-size:0.72rem; color:#94a3b8">{{ d.created_by.get_short_name|default:"—" }}</td>
           {% if request.user.is_chef %}
           <td>
             <div style="display:flex; gap:5px">

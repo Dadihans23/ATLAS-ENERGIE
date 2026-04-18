@@ -260,7 +260,7 @@
                 <div class="avatar-initials" style="width:26px; height:26px; border-radius:8px; font-size:0.6rem">
                   {{ d.created_by.first_name|first|upper }}{{ d.created_by.last_name|first|upper }}
                 </div>
-                <span style="font-size:0.72rem; color:#64748b">{{ d.created_by.get_short_name }}</span>
+                <span style="font-size:0.72rem; color:#64748b">{{ d.created_by.get_short_name|default:"—" }}</span>
               </div>
             </td>
           </tr>
@@ -322,7 +322,7 @@
                 <div class="avatar-initials" style="width:26px; height:26px; border-radius:8px; font-size:0.6rem; background:linear-gradient(135deg,#a78bfa,#8b5cf6)">
                   {{ d.created_by.first_name|first|upper }}{{ d.created_by.last_name|first|upper }}
                 </div>
-                <span style="font-size:0.72rem; color:#64748b">{{ d.created_by.get_short_name }}</span>
+                <span style="font-size:0.72rem; color:#64748b">{{ d.created_by.get_short_name|default:"—" }}</span>
               </div>
             </td>
           </tr>

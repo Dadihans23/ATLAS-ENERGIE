@@ -175,7 +175,7 @@
           <td style="text-align:right; font-weight:800; font-size:0.82rem; color:#276228; font-family:monospace;">
             {{ d.montant_xof|xof }}
           </td>
-          <td style="font-size:0.72rem; color:#94a3b8;">{{ d.created_by.get_short_name }}</td>
+          <td style="font-size:0.72rem; color:#94a3b8;">{{ d.created_by.get_short_name|default:"—" }}</td>
         </tr>
         {% empty %}
         <tr>
@@ -221,7 +221,7 @@
           <td style="text-align:right; font-weight:800; font-size:0.82rem; color:#8b5cf6; font-family:monospace;">
             {{ d.montant_xof|xof }}
           </td>
-          <td style="font-size:0.72rem; color:#94a3b8;">{{ d.created_by.get_short_name }}</td>
+          <td style="font-size:0.72rem; color:#94a3b8;">{{ d.created_by.get_short_name|default:"—" }}</td>
         </tr>
         {% empty %}
         <tr>

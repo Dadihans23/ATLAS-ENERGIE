@@ -121,7 +121,7 @@
               <div class="avatar-initials" style="width:24px; height:24px; border-radius:7px; font-size:0.6rem; background:linear-gradient(135deg,#a78bfa,#8b5cf6)">
                 {{ d.created_by.first_name|first|upper }}{{ d.created_by.last_name|first|upper }}
               </div>
-              <span style="font-size:0.72rem; color:#94a3b8">{{ d.created_by.get_short_name }}</span>
+              <span style="font-size:0.72rem; color:#94a3b8">{{ d.created_by.get_short_name|default:"—" }}</span>
             </div>
           </td>
           <td>{% include "depenses/_statut_badge.html" with statut=d.statut %}</td>
