@@ -66,7 +66,7 @@ def _next_numero(prefix: str, model_class, year: int) -> str:
     Doit être appelé à l'intérieur d'un transaction.atomic() + select_for_update().
     """
     last = (
-        model_class.objects
+        model_class.all_objects
         .select_for_update()
         .filter(numero_saisie__startswith=f"{prefix}-{year}-")
         .order_by('numero_saisie')
