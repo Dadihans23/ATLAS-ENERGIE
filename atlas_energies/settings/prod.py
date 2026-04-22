@@ -29,7 +29,7 @@ CSRF_TRUSTED_ORIGINS = [
 # Toute la config email est lue depuis .env via base.py
 # Ne pas surcharger EMAIL_PORT / EMAIL_USE_TLS ici → incohérence SSL/TLS
 # Activer la vérification email en prod
-ACCOUNT_EMAIL_VERIFICATION = 'mandatory'
+ACCOUNT_EMAIL_VERIFICATION = 'none'
 
 # ─── Allauth production (MEDIUM-05) ──────────────────────────────────────────
 # Force les liens de reset en HTTPS
