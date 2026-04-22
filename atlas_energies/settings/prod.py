@@ -11,19 +11,18 @@ X_FRAME_OPTIONS = 'DENY'
 # X-XSS-Protection désactivé (déprécié depuis Chrome 78, peut créer des vulns - LOW-01)
 SECURE_BROWSER_XSS_FILTER = False
 
-# ─── SSL — à activer une fois le certificat Let's Encrypt en place ────────────
-SECURE_SSL_REDIRECT = False
-SESSION_COOKIE_SECURE = False
-CSRF_COOKIE_SECURE = False
-# SECURE_HSTS_SECONDS = 31536000      # à décommenter après SSL
-# SECURE_HSTS_INCLUDE_SUBDOMAINS = True
-# SECURE_HSTS_PRELOAD = True
+# ─── SSL ─────────────────────────────────────────────────────────────────────
+SECURE_SSL_REDIRECT = True
+CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_SECURE = True
+SECURE_HSTS_SECONDS = 31536000
+SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+SECURE_HSTS_PRELOAD = True
 
 # ─── Origines CSRF autorisées ────────────────────────────────────────────────
 CSRF_TRUSTED_ORIGINS = [
-    'http://atlasenergies.net',
-    'http://www.atlasenergies.net',
-    'http://79.143.190.190',
+    'https://atlasenergies.net',
+    'https://www.atlasenergies.net',
 ]
 
 # ─── Email (HIGH-04) ─────────────────────────────────────────────────────────
