@@ -14,4 +14,8 @@ urlpatterns = [
     path('utilisateurs/nouveau/', views.AgentCreateView.as_view(), name='agent_creer'),
     path('utilisateurs/<int:pk>/modifier/', views.AgentUpdateView.as_view(), name='agent_modifier'),
     path('utilisateurs/<int:pk>/toggle/', views.agent_toggle_active, name='agent_toggle'),
+
+    # Configuration email (Chef d'Agence uniquement)
+    path('parametres/email/', views.EmailConfigView.as_view(), name='email_config'),
+    path('parametres/email/test/', views.email_test, name='email_test'),
 ]

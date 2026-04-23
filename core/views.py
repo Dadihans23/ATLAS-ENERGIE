@@ -12,14 +12,15 @@ from pathlib import Path as FilePath
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.core.mail import send_mail
 from django.http import FileResponse, Http404
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse_lazy
 from django.views.generic import ListView, CreateView, UpdateView
 
-from .forms import AgentCreationForm, AgentEditForm
+from .forms import AgentCreationForm, AgentEditForm, EmailConfigForm
 from .mixins import ChefRequiredMixin
-from .models import CustomUser
+from .models import CustomUser, EmailConfig
 
 security_logger = logging.getLogger('security')
 
@@ -163,6 +164,61 @@ def agent_toggle_active(request, pk):
     )
     messages.success(request, f"Compte de {user.get_full_name()} {action}.")
     return redirect('core:agent_liste')
+
+
+# ─── Configuration email ─────────────────────────────────────────────────────
+
+class EmailConfigView(ChefRequiredMixin, UpdateView):
+    model = EmailConfig
+    form_class = EmailConfigForm
+    template_name = 'core/email_config.html'
+    success_url = reverse_lazy('core:email_config')
+
+    def get_object(self, queryset=None):
+        return EmailConfig.get_solo()
+
+    def form_valid(self, form):
+        form.save()
+        messages.success(self.request, "Configuration email enregistrée et appliquée.")
+        return redirect(self.success_url)
+
+    def form_invalid(self, form):
+        messages.error(self.request, "Erreur dans le formulaire. Vérifiez les champs.")
+        return super().form_invalid(form)
+
+
+@login_required
+def email_test(request):
+    """Envoie un email de test au compte connecté (Chef uniquement)."""
+    if not request.user.is_chef:
+        raise Http404
+    if request.method != 'POST':
+        return redirect('core:email_config')
+
+    destinataire = request.user.email
+    try:
+        send_mail(
+            subject="[Atlas Énergies] Test de configuration email",
+            message=(
+                "Bonjour,\n\n"
+                "Cet email confirme que la configuration SMTP est opérationnelle.\n\n"
+                "— Atlas Énergies"
+            ),
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=[destinataire],
+            fail_silently=False,
+        )
+        messages.success(
+            request,
+            f"Email de test envoyé à {destinataire}. Vérifiez votre boîte de réception."
+        )
+    except Exception as exc:
+        messages.error(
+            request,
+            f"Échec de l'envoi : {exc}"
+        )
+
+    return redirect('core:email_config')
 
 
 # ─── Handlers d'erreur ────────────────────────────────────────────────────────

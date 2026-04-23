@@ -5,7 +5,7 @@ from django import forms
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 
-from .models import CustomUser
+from .models import CustomUser, EmailConfig
 
 
 class AgentCreationForm(forms.ModelForm):
@@ -97,3 +97,78 @@ class AgentEditForm(forms.ModelForm):
         labels = {
             'is_active': 'Compte actif',
         }
+
+
+CSS_INPUT = 'form-input-modern input input-bordered w-full'
+CSS_SELECT = 'form-input-modern select select-bordered w-full'
+
+
+class EmailConfigForm(forms.ModelForm):
+    """Formulaire de configuration SMTP (réservé au Chef d'Agence)."""
+
+    email_host_password = forms.CharField(
+        label="Mot de passe / App Password",
+        required=False,
+        widget=forms.PasswordInput(attrs={
+            'class': CSS_INPUT,
+            'placeholder': 'Laisser vide pour ne pas modifier',
+            'autocomplete': 'new-password',
+        }),
+    )
+
+    class Meta:
+        model = EmailConfig
+        fields = [
+            'email_host',
+            'email_port',
+            'email_use_ssl',
+            'email_use_tls',
+            'email_host_user',
+            'email_host_password',
+            'default_from_email',
+        ]
+        widgets = {
+            'email_host': forms.TextInput(attrs={
+                'class': CSS_INPUT,
+                'placeholder': 'smtp.gmail.com',
+            }),
+            'email_port': forms.NumberInput(attrs={
+                'class': CSS_INPUT,
+                'placeholder': '465',
+            }),
+            'email_use_ssl': forms.CheckboxInput(attrs={'class': 'checkbox checkbox-sm'}),
+            'email_use_tls': forms.CheckboxInput(attrs={'class': 'checkbox checkbox-sm'}),
+            'email_host_user': forms.EmailInput(attrs={
+                'class': CSS_INPUT,
+                'placeholder': 'expediteur@gmail.com',
+                'autocomplete': 'off',
+            }),
+            'default_from_email': forms.TextInput(attrs={
+                'class': CSS_INPUT,
+                'placeholder': 'Atlas Énergies <noreply@atlas-energies.ci>',
+            }),
+        }
+
+    def clean(self):
+        cleaned = super().clean()
+        ssl = cleaned.get('email_use_ssl')
+        tls = cleaned.get('email_use_tls')
+        if ssl and tls:
+            raise forms.ValidationError(
+                "SSL et TLS ne peuvent pas être activés en même temps. "
+                "Choisissez SSL (port 465) OU TLS (port 587)."
+            )
+        return cleaned
+
+    def save(self, commit=True):
+        instance = super().save(commit=False)
+        pwd = self.cleaned_data.get('email_host_password', '').strip()
+        if not pwd:
+            # Conserver l'ancien mot de passe si le champ est laissé vide
+            try:
+                instance.email_host_password = EmailConfig.objects.get(pk=1).email_host_password
+            except EmailConfig.DoesNotExist:
+                pass
+        if commit:
+            instance.save()
+        return instance

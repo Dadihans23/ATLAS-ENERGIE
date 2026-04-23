@@ -586,6 +586,14 @@
       </svg>
       Utilisateurs
     </a>
+    <a href="{% url 'core:email_config' %}"
+       class="nav-item {% if 'parametres/email' in request.path %}active{% endif %}">
+      <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75"
+              d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+      </svg>
+      Config. Email
+    </a>
     <a href="/admin/" class="nav-item">
       <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75"
